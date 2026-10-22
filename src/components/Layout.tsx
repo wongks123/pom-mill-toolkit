@@ -16,8 +16,10 @@ export function Layout() {
       <header className="no-print sticky top-0 z-40 bg-palm-900 text-white shadow">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
           <Link to="/" className="flex items-center gap-2 font-bold">
-            <img src="./icon.svg" alt="" className="h-7 w-7" />
-            <span>PEPC Mill Toolkit</span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white p-1">
+              <img src="./itake-mark.png" alt="" className="h-full w-auto" />
+            </span>
+            <span>iTake Academy</span>
           </Link>
           <nav className="hidden gap-1 md:flex">
             {TABS.map((t) => (

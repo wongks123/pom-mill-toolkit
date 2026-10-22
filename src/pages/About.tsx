@@ -15,7 +15,7 @@ export default function About() {
       <h1 className="text-2xl font-bold text-palm-900">About</h1>
       <section className="rounded-xl bg-white p-4 shadow-sm">
         <p>
-          The PEPC Palm Oil Mill Toolkit is a teaching and calculation app for palm oil mill engineers and beginners.
+          iTake Academy's Palm Oil Mill Toolkit is a teaching and calculation app for palm oil mill engineers and beginners.
           Its calculators are based on the <b>MPOB Palm Oil Mill Pocketbook</b> (Malaysian Palm Oil Board, Engineering & Processing Division).
           Credit for the original methods and data belongs to MPOB.
         </p>
