@@ -15,6 +15,7 @@ import Converter from './pages/Converter'
 import ProjectPage from './pages/ProjectPage'
 import Summary from './pages/Summary'
 import About from './pages/About'
+import HistoryPage from './pages/HistoryPage'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="convert" element={<Converter />} />
         <Route path="project" element={<ProjectPage />} />
         <Route path="project/summary" element={<Summary />} />
+        <Route path="history" element={<HistoryPage />} />
         <Route path="about" element={<About />} />
         <Route path="*" element={<NotFound />} />
       </Route>

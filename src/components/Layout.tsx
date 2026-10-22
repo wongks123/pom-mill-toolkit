@@ -28,9 +28,14 @@ export function Layout() {
               </NavLink>
             ))}
           </nav>
-          <Link to="/project" className="shrink-0 rounded-full bg-palm-700 px-3 py-1 text-xs">
-            {project ? `📐 ${project.name} · ${project.capacityTph} t/h` : 'Project mode'}
-          </Link>
+          <div className="flex shrink-0 items-center gap-2">
+            <NavLink to="/history" title="History & backup" aria-label="History & backup" className={({ isActive }) => `rounded-full px-2.5 py-1 text-xs ${isActive ? 'bg-palm-700' : 'bg-palm-800 hover:bg-palm-700'}`}>
+              🕘<span className="ml-1 hidden sm:inline">History</span>
+            </NavLink>
+            <Link to="/project" className="max-w-[45vw] truncate rounded-full bg-palm-700 px-3 py-1 text-xs">
+              {project ? `📐 ${project.name} · ${project.capacityTph} t/h` : 'Project mode'}
+            </Link>
+          </div>
         </div>
       </header>
 

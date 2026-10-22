@@ -8,12 +8,15 @@ import { ResultCard } from './ResultCard'
 import { FormulaBlock } from './FormulaBlock'
 import { StepWorking } from './StepWorking'
 import { fmt } from './format'
+import { makeSnapshot } from '../report/snapshot'
 
 const toRaw = (v: Record<string, number>) => Object.fromEntries(Object.entries(v).map(([k, n]) => [k, String(n)]))
 
-export function CalculatorShell({ def }: { def: CalcDef }) {
-  const { project, addToReport } = useProject()
-  const [raw, setRaw] = useState<Record<string, string>>(() => toRaw(initialValues(def, project as unknown as Record<string, unknown>)))
+export function CalculatorShell({ def, initial }: { def: CalcDef; initial?: { inputs: Record<string, number>; note?: string } }) {
+  const { project, addToReport, addHistory } = useProject()
+  const [raw, setRaw] = useState<Record<string, string>>(() => toRaw({ ...initialValues(def, project as unknown as Record<string, unknown>), ...(initial?.inputs ?? {}) }))
+  const [note, setNote] = useState(initial?.note ?? '')
+  const [pdfBusy, setPdfBusy] = useState(false)
   const [toast, setToast] = useState('')
   const [trainer, setTrainer] = useState(false)
   const [revealed, setRevealed] = useState(false)
@@ -61,6 +64,29 @@ export function CalculatorShell({ def }: { def: CalcDef }) {
   }
 
   const hidden = trainer && !revealed
+
+  const snapshot = () => (out ? makeSnapshot(def, values, out, project?.name) : null)
+
+  const downloadPdf = async () => {
+    const s = snapshot()
+    if (!s) return
+    setPdfBusy(true)
+    try {
+      const { downloadCalcPdf } = await import('../report/pdf')
+      await downloadCalcPdf(s, note.trim() || undefined)
+    } catch (e) {
+      flash(`PDF failed: ${(e as Error).message}`)
+    } finally {
+      setPdfBusy(false)
+    }
+  }
+
+  const saveHistory = () => {
+    const s = snapshot()
+    if (!s) return
+    addHistory(s, note)
+    flash('Saved to history')
+  }
 
   return (
     <div className="space-y-4">
@@ -114,6 +140,15 @@ export function CalculatorShell({ def }: { def: CalcDef }) {
       <p className={`rounded-lg p-3 text-sm ${def.corrected ? 'bg-fruit-100 text-orange-900' : 'bg-stone-100 text-stone-600'}`}>
         <b>Source:</b> {def.source}
       </p>
+
+      <section className="no-print space-y-2 rounded-xl bg-white p-4 shadow-sm">
+        <label htmlFor="calc-note" className="text-sm font-medium text-stone-700">Note for history / report <span className="font-normal text-stone-400">(optional)</span></label>
+        <input id="calc-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Mill A – kernel screw #2" className="w-full rounded-lg border border-stone-300 px-3 py-2.5" />
+        <div className="flex gap-2">
+          <button disabled={!out || pdfBusy} onClick={downloadPdf} className="flex-1 rounded-lg bg-palm-900 px-4 py-2.5 font-medium text-white disabled:opacity-40">{pdfBusy ? 'Preparing…' : 'Download PDF'}</button>
+          <button disabled={!out} onClick={saveHistory} className="flex-1 rounded-lg border border-palm-700 px-4 py-2.5 font-medium text-palm-800 disabled:opacity-40">Save to history</button>
+        </div>
+      </section>
 
       <div className="flex gap-2">
         <button disabled={!out} onClick={copy} className="flex-1 rounded-lg border border-palm-700 px-4 py-2.5 font-medium text-palm-800 disabled:opacity-40">Copy</button>

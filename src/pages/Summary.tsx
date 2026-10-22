@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CALCULATORS, initialValues } from '../calculators/registry'
 import type { CalcOutput } from '../calculators/types'
@@ -7,6 +8,7 @@ import { fmt } from '../components/format'
 export default function Summary() {
   const { project, report } = useProject()
   const p = project ?? DEFAULT_PROJECT
+  const [busy, setBusy] = useState(false)
   const rows = CALCULATORS.filter((c) => c.sizing).map((def) => {
     const values = initialValues(def, p as unknown as Record<string, unknown>)
     let out: CalcOutput | undefined
@@ -19,11 +21,38 @@ export default function Summary() {
     return { def, values, out, error }
   })
 
+  const downloadPdf = async () => {
+    setBusy(true)
+    try {
+      const { downloadSummaryPdf } = await import('../report/pdf')
+      await downloadSummaryPdf(
+        p,
+        [['Project', p.name], ['Mill capacity', `${p.capacityTph} t FFB/h`], ['Fruit / FFB', String(p.fruitRatio)], ['Fibre / FFB', String(p.fibreRatio)], ['Nut / FFB', String(p.nutRatio)], ['DCO / FFB', String(p.dcoRatio)], ['Steam demand', `${p.steamDemand} kg/t FFB`]],
+        rows.map(({ def, out, error }) => ({
+          title: def.title,
+          source: def.source,
+          error,
+          primary: out ? `${out.primary.label}: ${fmt(out.primary.value, out.primary.digits)} ${out.primary.unit}` : undefined,
+          outputs: out ? out.outputs.map((o) => `${o.label}: ${fmt(o.value, o.digits)} ${o.unit}`) : [],
+          warnings: out?.warnings ?? [],
+        })),
+        report,
+      )
+    } catch (e) {
+      alert(`PDF failed: ${(e as Error).message}`)
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="no-print flex items-center justify-between gap-2">
         <Link to="/project" className="text-sm text-palm-700">← Project</Link>
-        <button onClick={() => window.print()} className="rounded-lg bg-palm-700 px-4 py-2 font-medium text-white">Export PDF / Print</button>
+        <div className="flex gap-2">
+          <button onClick={() => window.print()} className="rounded-lg border border-palm-700 px-4 py-2 font-medium text-palm-800">Print</button>
+          <button disabled={busy} onClick={downloadPdf} className="rounded-lg bg-palm-700 px-4 py-2 font-medium text-white disabled:opacity-40">{busy ? 'Preparing…' : 'Download PDF'}</button>
+        </div>
       </div>
       <header className="rounded-xl bg-white p-4 shadow-sm">
         <h1 className="text-2xl font-bold text-palm-900">Mill Design Summary</h1>

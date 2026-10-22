@@ -7,6 +7,7 @@ const CARDS = [
   { to: '/reference', icon: '📋', title: 'Reference tables', text: 'Densities, fatty acids, POME, limits and more. Searchable.' },
   { to: '/convert', icon: '⇄', title: 'Unit converter', text: 'mm↔inch, t/h↔kg/s, bar↔psi, °C↔°F and more.' },
   { to: '/project', icon: '📐', title: 'Project mode', text: 'Enter your mill capacity once; all calculators prefill. Print a design summary.' },
+  { to: '/history', icon: '🕘', title: 'History & backup', text: 'Saved calculations, PDF reports on the iTake letterhead, and Google Drive backup.' },
   { to: '/learn/mass-balance', icon: '🔀', title: 'Mass balance', text: 'Where 1,000 kg of FFB ends up, as an interactive diagram.' },
 ]
 

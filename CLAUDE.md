@@ -36,3 +36,5 @@ Primary reference: MPOB Palm Oil Mill Pocketbook (Engineering & Processing Divis
 - src/calculators/   UI definitions per calculator (inputs, defaults, typical ranges, formula, source)
 - src/data/          JSON reference tables. Items with "review": true are drafts not yet checked against the pocketbook.
 - src/pages/         route pages; src/components/ shared UI
+- src/report/         PDF reports on the ITAKE SOLUTIONS letterhead (jsPDF; letterhead images in public/letterhead, DejaVu Sans subset in public/fonts)
+- src/backup/         backup file format and Google Drive backup (Google Identity Services, drive.file scope; client ID from VITE_GOOGLE_CLIENT_ID, set as GitHub repo variable GOOGLE_CLIENT_ID)

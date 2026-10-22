@@ -10,6 +10,7 @@ import { pumpPowerImperial } from '../pumping'
 import { massBalance, oerFromBunch, oilLoss } from '../process'
 import { convert, convertTemperature } from '../units'
 import { conveyorSizing } from '../conveyor'
+import { buildBackup, parseBackup } from '../../backup/backup'
 import { InputError } from '../types'
 
 /** Asserts |actual − expected| ≤ 0.5% of expected (docs/test-cases.md tolerance). */
@@ -201,5 +202,14 @@ describe('Validation and helpers', () => {
     near(convert('pressure', 1, 'bar', 'psi'), 14.5038)
     near(convert('massflow', 1, 'th', 'kgs'), 0.27778)
     near(convertTemperature(90, 'C', 'F'), 194)
+  })
+})
+
+describe('Backup file', () => {
+  it('round-trips and accepts old project exports', () => {
+    const b = buildBackup({ name: 'Mill A', capacityTph: 60, fruitRatio: 0.6, fibreRatio: 0.13, nutRatio: 0.12, dcoRatio: 0.65, steamDemand: 272.5 }, [], [])
+    expect(parseBackup(JSON.stringify(b)).project?.name).toBe('Mill A')
+    expect(parseBackup(JSON.stringify({ project: null, report: [] })).history).toEqual([])
+    expect(() => parseBackup('{"app":"other"}')).toThrow()
   })
 })
