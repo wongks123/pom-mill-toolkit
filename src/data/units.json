@@ -1,0 +1,85 @@
+{
+  "title": "Unit conversions",
+  "source": "Exact or standard factors. The p.42 table should be checked for any mill-specific units.",
+  "review": false,
+  "categories": [
+    { "id": "length", "name": "Length", "base": "m", "units": [
+      { "id": "mm", "name": "millimetre (mm)", "factor": 0.001 },
+      { "id": "cm", "name": "centimetre (cm)", "factor": 0.01 },
+      { "id": "m", "name": "metre (m)", "factor": 1 },
+      { "id": "in", "name": "inch (in)", "factor": 0.0254 },
+      { "id": "ft", "name": "foot (ft)", "factor": 0.3048 },
+      { "id": "yd", "name": "yard (yd)", "factor": 0.9144 }
+    ]},
+    { "id": "area", "name": "Area", "base": "m²", "units": [
+      { "id": "mm2", "name": "mm²", "factor": 0.000001 },
+      { "id": "m2", "name": "m²", "factor": 1 },
+      { "id": "in2", "name": "in²", "factor": 0.00064516 },
+      { "id": "ft2", "name": "ft²", "factor": 0.09290304 },
+      { "id": "ha", "name": "hectare (ha)", "factor": 10000 },
+      { "id": "acre", "name": "acre", "factor": 4046.8564 }
+    ]},
+    { "id": "volume", "name": "Volume", "base": "m³", "units": [
+      { "id": "L", "name": "litre (L)", "factor": 0.001 },
+      { "id": "m3", "name": "m³", "factor": 1 },
+      { "id": "impgal", "name": "imperial gallon", "factor": 0.00454609 },
+      { "id": "usgal", "name": "US gallon", "factor": 0.003785411784 },
+      { "id": "ft3", "name": "ft³", "factor": 0.028316846592 }
+    ]},
+    { "id": "mass", "name": "Mass", "base": "kg", "units": [
+      { "id": "g", "name": "gram (g)", "factor": 0.001 },
+      { "id": "kg", "name": "kilogram (kg)", "factor": 1 },
+      { "id": "t", "name": "tonne (t)", "factor": 1000 },
+      { "id": "lb", "name": "pound (lb)", "factor": 0.45359237 },
+      { "id": "longton", "name": "long ton", "factor": 1016.0469 }
+    ]},
+    { "id": "massflow", "name": "Mass flow", "base": "kg/s", "units": [
+      { "id": "kgs", "name": "kg/s", "factor": 1 },
+      { "id": "kgh", "name": "kg/h", "factor": 0.000277777778 },
+      { "id": "th", "name": "t/h", "factor": 0.277777778 },
+      { "id": "lbh", "name": "lb/h", "factor": 0.000125998 }
+    ]},
+    { "id": "volflow", "name": "Volume flow", "base": "m³/s", "units": [
+      { "id": "m3s", "name": "m³/s", "factor": 1 },
+      { "id": "m3h", "name": "m³/h", "factor": 0.000277777778 },
+      { "id": "Ls", "name": "L/s", "factor": 0.001 },
+      { "id": "impgpm", "name": "imperial gal/min", "factor": 0.0000757682 },
+      { "id": "usgpm", "name": "US gal/min", "factor": 0.0000630902 },
+      { "id": "cfm", "name": "ft³/min (CFM)", "factor": 0.000471947 }
+    ]},
+    { "id": "pressure", "name": "Pressure", "base": "kPa", "units": [
+      { "id": "kPa", "name": "kPa", "factor": 1 },
+      { "id": "bar", "name": "bar", "factor": 100 },
+      { "id": "psi", "name": "psi", "factor": 6.894757 },
+      { "id": "kgcm2", "name": "kg/cm²", "factor": 98.0665 },
+      { "id": "mmH2O", "name": "mm H₂O", "factor": 0.00980665 },
+      { "id": "inH2O", "name": "in H₂O", "factor": 0.249089 },
+      { "id": "atm", "name": "atm", "factor": 101.325 }
+    ]},
+    { "id": "power", "name": "Power", "base": "kW", "units": [
+      { "id": "W", "name": "watt (W)", "factor": 0.001 },
+      { "id": "kW", "name": "kW", "factor": 1 },
+      { "id": "hp", "name": "horsepower (hp, 746 W)", "factor": 0.746 },
+      { "id": "ps", "name": "metric hp (PS)", "factor": 0.7355 },
+      { "id": "btuh", "name": "BTU/h", "factor": 0.00029307 }
+    ]},
+    { "id": "energy", "name": "Energy", "base": "kJ", "units": [
+      { "id": "kJ", "name": "kJ", "factor": 1 },
+      { "id": "MJ", "name": "MJ", "factor": 1000 },
+      { "id": "kWh", "name": "kWh", "factor": 3600 },
+      { "id": "kcal", "name": "kcal", "factor": 4.1868 },
+      { "id": "btu", "name": "BTU", "factor": 1.05506 }
+    ]},
+    { "id": "velocity", "name": "Velocity", "base": "m/s", "units": [
+      { "id": "ms", "name": "m/s", "factor": 1 },
+      { "id": "kmh", "name": "km/h", "factor": 0.277777778 },
+      { "id": "fts", "name": "ft/s", "factor": 0.3048 },
+      { "id": "fpm", "name": "ft/min", "factor": 0.00508 }
+    ]},
+    { "id": "density", "name": "Density", "base": "kg/m³", "units": [
+      { "id": "kgm3", "name": "kg/m³", "factor": 1 },
+      { "id": "tm3", "name": "t/m³ (= g/cm³)", "factor": 1000 },
+      { "id": "lbft3", "name": "lb/ft³", "factor": 16.018463 }
+    ]}
+  ]
+}

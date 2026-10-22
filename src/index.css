@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  --color-palm-50: #f0fdf4;
+  --color-palm-100: #dcfce7;
+  --color-palm-200: #bbf7d0;
+  --color-palm-600: #16a34a;
+  --color-palm-700: #15803d;
+  --color-palm-800: #166534;
+  --color-palm-900: #14532d;
+  --color-fruit-500: #ea580c;
+  --color-fruit-100: #ffedd5;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: #f7f7f2;
+  color: #1c1917;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+input[type='number'] {
+  font-variant-numeric: tabular-nums;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white;
+  }
+  .print-break {
+    break-inside: avoid;
+  }
+}

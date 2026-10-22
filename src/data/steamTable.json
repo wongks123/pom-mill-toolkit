@@ -1,0 +1,25 @@
+{
+  "title": "Saturated steam: specific volume vs absolute pressure",
+  "source": "Standard steam tables (IAPWS-IF97). Not from the pocketbook.",
+  "review": false,
+  "atmosphericBar": 1.01325,
+  "rows": [
+    { "pAbsBar": 1.0, "tempC": 99.6, "vg": 1.694 },
+    { "pAbsBar": 1.5, "tempC": 111.4, "vg": 1.159 },
+    { "pAbsBar": 2.0, "tempC": 120.2, "vg": 0.8857 },
+    { "pAbsBar": 2.5, "tempC": 127.4, "vg": 0.7187 },
+    { "pAbsBar": 3.0, "tempC": 133.5, "vg": 0.6058 },
+    { "pAbsBar": 3.5, "tempC": 138.9, "vg": 0.5243 },
+    { "pAbsBar": 4.0, "tempC": 143.6, "vg": 0.4624 },
+    { "pAbsBar": 4.5, "tempC": 147.9, "vg": 0.4139 },
+    { "pAbsBar": 5.0, "tempC": 151.8, "vg": 0.3748 },
+    { "pAbsBar": 6.0, "tempC": 158.8, "vg": 0.3156 },
+    { "pAbsBar": 7.0, "tempC": 165.0, "vg": 0.2728 },
+    { "pAbsBar": 8.0, "tempC": 170.4, "vg": 0.2403 },
+    { "pAbsBar": 10.0, "tempC": 179.9, "vg": 0.1944 },
+    { "pAbsBar": 12.0, "tempC": 188.0, "vg": 0.1632 },
+    { "pAbsBar": 15.0, "tempC": 198.3, "vg": 0.1317 },
+    { "pAbsBar": 20.0, "tempC": 212.4, "vg": 0.0996 },
+    { "pAbsBar": 25.0, "tempC": 224.0, "vg": 0.0799 }
+  ]
+}

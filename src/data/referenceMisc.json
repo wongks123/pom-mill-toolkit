@@ -1,0 +1,108 @@
+{
+  "tables": [
+    {
+      "id": "fruitComposition",
+      "title": "Bunch and fruit composition (Tenera)",
+      "source": "[REVIEW] Typical values from general practice. Check against the pocketbook.",
+      "review": true,
+      "columns": ["Component", "Typical", "Basis"],
+      "rows": [
+        ["Fruit to bunch", "60–65%", "% of bunch"],
+        ["Mesocarp to fruit", "75–85%", "% of fruit"],
+        ["Oil to wet mesocarp", "45–55%", "% of mesocarp"],
+        ["Oil to bunch", "22–26%", "% of bunch"],
+        ["Kernel to bunch", "5–7%", "% of bunch"],
+        ["Shell to fruit", "8–12%", "% of fruit"],
+        ["Moisture in mesocarp", "35–40%", "% of mesocarp"]
+      ]
+    },
+    {
+      "id": "kernelComposition",
+      "title": "Palm kernel composition",
+      "source": "[REVIEW] Typical values from general practice.",
+      "review": true,
+      "columns": ["Component", "Typical (%)"],
+      "rows": [
+        ["Oil", "47–50"],
+        ["Moisture", "6–7"],
+        ["Protein", "7–9"],
+        ["Fibre", "5–7"],
+        ["Ash", "1.5–2"],
+        ["Carbohydrate (NFE)", "~23"]
+      ]
+    },
+    {
+      "id": "biomassCv",
+      "title": "Calorific values of mill biomass",
+      "source": "[REVIEW] Typical values from general practice.",
+      "review": true,
+      "columns": ["Fuel", "Moisture (%)", "Net CV (MJ/kg, as fired)"],
+      "rows": [
+        ["Press fibre", "35–40", "10.5–11.5"],
+        ["Shell", "10–15", "16–18"],
+        ["EFB (shredded, pressed)", "40–50", "7.5–9.0"],
+        ["EFB (fresh)", "60–65", "~5"],
+        ["Biogas", "—", "~20 MJ/m³ (60% CH₄)"]
+      ]
+    },
+    {
+      "id": "liftingVelocities",
+      "title": "Air velocities for pneumatic conveying and separation",
+      "source": "Values from the pocketbook examples (p.23–25) plus [REVIEW] typical figures.",
+      "review": true,
+      "columns": ["Duty", "Air velocity (m/s)", "Note"],
+      "rows": [
+        ["Fibre separation in de-pericarper column", "8–10", "p.24 example uses 10"],
+        ["Shell separation (winnowing) column", "12–14", "[REVIEW]"],
+        ["De-stoner separating velocity", "15–17", "p.25 example uses 16"],
+        ["Pneumatic conveying trunk / duct", "20–25", "p.24–25 examples use 25"],
+        ["Kernel pneumatic conveying", "18–22", "[REVIEW]"]
+      ]
+    },
+    {
+      "id": "machineryRpm",
+      "title": "Typical machinery speeds and sizes",
+      "source": "[REVIEW] Typical values from general practice. Replace with p.17.",
+      "review": true,
+      "columns": ["Machine", "Speed (rpm)", "Typical size / note"],
+      "rows": [
+        ["Rotary drum thresher", "22–24", "Ø 1.8–2.6 m, 4–6 m long"],
+        ["Digester", "25–27", "3.2–4.0 m³ capacity"],
+        ["Twin-screw press", "10–14", "10–20 t FFB/h per press"],
+        ["Cake breaker conveyor", "60–80", "—"],
+        ["Ripple mill (rotor)", "1,500–2,000", "4–6 t nuts/h"],
+        ["Centrifugal nut cracker", "1,200–1,500", "—"],
+        ["Decanter", "3,000–3,500", "—"],
+        ["Oil purifier (centrifuge)", "5,000–6,500", "—"],
+        ["Sludge separator (nozzle)", "1,400–1,600", "—"],
+        ["Vibrating screen", "1,000–1,450", "—"]
+      ]
+    },
+    {
+      "id": "cpoStandards",
+      "title": "CPO quality standard",
+      "source": "[REVIEW] MS 814 / PORAM standard specification for CPO.",
+      "review": true,
+      "columns": ["Parameter", "Limit", "Note"],
+      "rows": [
+        ["Free fatty acid (FFA, as palmitic)", "≤ 5.0%", "Mills target ≤ 3.5%"],
+        ["Moisture and impurities (M&I)", "≤ 0.25%", "Moisture ≤ 0.20%, dirt ≤ 0.02%"],
+        ["DOBI", "≥ 2.3", "≥ 2.5 is good; < 1.8 is poor bleachability"],
+        ["Iodine value (Wijs)", "50.4–53.7", "—"],
+        ["Peroxide value", "Low", "Indicates oxidation"]
+      ]
+    },
+    {
+      "id": "plantingMaterial",
+      "title": "Planting material (fruit types)",
+      "source": "[REVIEW] General agronomy reference.",
+      "review": true,
+      "columns": ["Type", "Shell thickness", "Mesocarp to fruit", "Note"],
+      "rows": [
+        ["Dura", "2–8 mm", "35–55%", "Thick shell, low oil"],
+        ["Tenera (D×P hybrid)", "0.5–4 mm", "60–96%", "Commercial standard"],
+        ["Pisifera", "No shell", "—", "Mostly female-sterile; used as pollen parent"]
+      ]
+    }
+  ]
+}

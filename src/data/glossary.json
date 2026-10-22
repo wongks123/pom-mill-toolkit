@@ -1,0 +1,33 @@
+{
+  "terms": [
+    { "term": "BOD", "full": "Biochemical oxygen demand", "def": "Oxygen used by microbes to break down organic matter in water. The main measure of effluent strength." },
+    { "term": "BPV", "full": "Back pressure vessel", "def": "Receiver for turbine exhaust steam (≈3 bar g) that feeds the steriliser and process." },
+    { "term": "COD", "full": "Chemical oxygen demand", "def": "Oxygen needed to chemically oxidise all organic matter. Always higher than BOD." },
+    { "term": "CPO", "full": "Crude palm oil", "def": "The main mill product: clarified, purified and dried oil from the mesocarp." },
+    { "term": "DCO", "full": "Diluted crude oil", "def": "Press oil mixed with hot dilution water before clarification." },
+    { "term": "DOBI", "full": "Deterioration of bleachability index", "def": "Ratio of carotene to oxidation products. High DOBI (≥2.5) means the oil bleaches easily." },
+    { "term": "DOE", "full": "Department of Environment", "def": "Malaysian regulator that licenses mill effluent and air emissions." },
+    { "term": "Dura", "full": "", "def": "Thick-shelled palm fruit type with low oil content." },
+    { "term": "EFB", "full": "Empty fruit bunch", "def": "The bunch stalk left after threshing. Used for mulch, compost or biomass fuel." },
+    { "term": "FFA", "full": "Free fatty acid", "def": "Fatty acids split from the oil by lipase or heat. A key CPO quality measure (≤5%)." },
+    { "term": "FFB", "full": "Fresh fruit bunch", "def": "The harvested oil palm bunch, the mill's raw material." },
+    { "term": "Fibre", "full": "Press fibre / mesocarp fibre", "def": "The fibrous part of the press cake, burned as boiler fuel." },
+    { "term": "KER", "full": "Kernel extraction rate", "def": "Kernel produced as a percentage of FFB processed." },
+    { "term": "Kernel", "full": "Palm kernel", "def": "The seed inside the nut; source of palm kernel oil." },
+    { "term": "Lipase", "full": "", "def": "Enzyme in the fruit that splits oil into FFA. Stopped by sterilisation." },
+    { "term": "M&I", "full": "Moisture and impurities", "def": "Water and dirt in CPO. Limit ≤0.25%." },
+    { "term": "Mesocarp", "full": "", "def": "The fleshy, oil-bearing outer layer of the fruitlet." },
+    { "term": "MPOB", "full": "Malaysian Palm Oil Board", "def": "Government agency for the palm oil industry; publisher of the Palm Oil Mill Pocketbook." },
+    { "term": "NOS", "full": "Non-oily solids", "def": "Solids in fibre or sludge that are not oil, used to express oil losses on a dry basis." },
+    { "term": "Nut", "full": "", "def": "The shell plus kernel, after the mesocarp has been pressed off." },
+    { "term": "OER", "full": "Oil extraction rate", "def": "CPO produced as a percentage of FFB processed." },
+    { "term": "Pisifera", "full": "", "def": "Shell-less fruit type, used as the male parent of Tenera." },
+    { "term": "POME", "full": "Palm oil mill effluent", "def": "Wastewater from sterilisation, clarification and hydrocyclones." },
+    { "term": "Press cake", "full": "", "def": "Fibre and nuts leaving the screw press." },
+    { "term": "Ripple mill", "full": "", "def": "Nut cracker with a rotor that rolls nuts against a ripple plate." },
+    { "term": "Sludge", "full": "", "def": "Underflow from the clarifier: water, solids and some oil." },
+    { "term": "Tenera", "full": "", "def": "Dura × Pisifera hybrid with a thin shell and high oil. The commercial standard." },
+    { "term": "Triple peak", "full": "", "def": "Sterilisation cycle with three steam pressure peaks to purge air." },
+    { "term": "USB", "full": "Unstripped bunch", "def": "A bunch that still has fruit after threshing. Usually a sign of under-sterilisation." }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "title": "DOE discharge limits for palm oil mill effluent (watercourse discharge)",
+  "source": "[REVIEW] Environmental Quality (Prescribed Premises)(Crude Palm Oil) Regulations 1977, as commonly applied. Many states and sensitive areas now impose BOD 20 mg/L. Check the mill's licence conditions.",
+  "review": true,
+  "columns": ["Parameter", "Limit", "Unit"],
+  "rows": [
+    ["BOD (3-day, 30 °C)", "100 (20 in Sabah, Sarawak and sensitive areas)", "mg/L"],
+    ["Suspended solids", "400", "mg/L"],
+    ["Oil and grease", "50", "mg/L"],
+    ["Ammoniacal nitrogen", "150", "mg/L"],
+    ["Total nitrogen", "200", "mg/L"],
+    ["pH", "5.0–9.0", "—"],
+    ["Temperature", "45", "°C"]
+  ],
+  "biogas": [
+    "[REVIEW] MPOB requires new mills, and existing mills applying to expand capacity, to install biogas capture or methane-avoidance facilities (policy in force since 2014).",
+    "Captured biogas is typically 55–65% methane. It can fire boilers or run gas engines for grid export (Feed-in Tariff).",
+    "Covered lagoons and closed tank digesters are the common technologies. Flaring is the minimum when the gas is not used.",
+    "Roughly 28 m³ of biogas can be produced per m³ of POME [REVIEW]."
+  ]
+}

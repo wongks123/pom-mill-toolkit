@@ -1,0 +1,15 @@
+{
+  "title": "Triple-peak sterilisation sequence",
+  "source": "[REVIEW] Generic triple-peak cycle drafted from standard milling practice. Replace with the p.5 S1–S7 table.",
+  "review": true,
+  "note": "fraction = share of the cooking time (S1–S6). S7 uses the final blow-off time.",
+  "steps": [
+    { "id": "S1", "name": "1st peak (air purge)", "fraction": 0.08, "pStart": 0, "pEnd": 1.5, "inlet": "open", "exhaust": "closed", "condensate": "open", "purpose": "Drive out air, which insulates the fruit and slows heating." },
+    { "id": "S2", "name": "1st release", "fraction": 0.04, "pStart": 1.5, "pEnd": 0, "inlet": "closed", "exhaust": "open", "condensate": "open", "purpose": "Exhaust air–steam mix and condensate." },
+    { "id": "S3", "name": "2nd peak", "fraction": 0.10, "pStart": 0, "pEnd": 2.0, "inlet": "open", "exhaust": "closed", "condensate": "closed", "purpose": "Further de-aeration and heating of the bunch core." },
+    { "id": "S4", "name": "2nd release", "fraction": 0.05, "pStart": 2.0, "pEnd": 0, "inlet": "closed", "exhaust": "open", "condensate": "open", "purpose": "Remove remaining air and condensate." },
+    { "id": "S5", "name": "3rd peak", "fraction": 0.13, "pStart": 0, "pEnd": 3.0, "inlet": "open", "exhaust": "closed", "condensate": "closed", "purpose": "Raise to cooking pressure (about 40–45 psi / 3 bar g)." },
+    { "id": "S6", "name": "Holding (cooking)", "fraction": 0.60, "pStart": 3.0, "pEnd": 3.0, "inlet": "throttled", "exhaust": "closed", "condensate": "intermittent", "purpose": "Hold pressure to loosen fruitlets, deactivate lipase and condition nuts." },
+    { "id": "S7", "name": "Final blow-off", "fraction": 0, "pStart": 3.0, "pEnd": 0, "inlet": "closed", "exhaust": "open", "condensate": "open", "purpose": "Depressurise before opening the door." }
+  ]
+}

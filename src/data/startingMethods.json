@@ -1,0 +1,13 @@
+{
+  "title": "Motor starting current by starting method",
+  "source": "[REVIEW] Typical values from general electrical practice. Check against p.19.",
+  "review": true,
+  "rows": [
+    { "id": 0, "method": "Direct-on-line (DOL)", "multipleOfFlc": 6.5, "torque": "100% of DOL" },
+    { "id": 1, "method": "Star–delta", "multipleOfFlc": 2.2, "torque": "33% of DOL" },
+    { "id": 2, "method": "Auto-transformer (65% tap)", "multipleOfFlc": 2.7, "torque": "42% of DOL" },
+    { "id": 3, "method": "Auto-transformer (80% tap)", "multipleOfFlc": 4.2, "torque": "64% of DOL" },
+    { "id": 4, "method": "Soft starter", "multipleOfFlc": 3.0, "torque": "Adjustable" },
+    { "id": 5, "method": "Variable speed drive (VSD)", "multipleOfFlc": 1.2, "torque": "Up to 150% of rated" }
+  ]
+}

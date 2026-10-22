@@ -1,0 +1,14 @@
+{
+  "title": "Production cost by mill capacity (RM per tonne FFB)",
+  "source": "[REVIEW] PLACEHOLDER values. The p.40 table was not available when this was built. Replace every number before using it.",
+  "review": true,
+  "placeholder": true,
+  "capacities": [20, 30, 45, 60],
+  "categories": [
+    { "name": "Labour", "values": [18.0, 14.5, 11.5, 10.0] },
+    { "name": "Repairs & maintenance", "values": [12.0, 10.5, 9.0, 8.0] },
+    { "name": "Utilities & chemicals", "values": [6.0, 5.5, 5.0, 4.8] },
+    { "name": "Administration", "values": [8.0, 6.5, 5.0, 4.2] },
+    { "name": "Depreciation", "values": [14.0, 12.0, 10.5, 9.5] }
+  ]
+}

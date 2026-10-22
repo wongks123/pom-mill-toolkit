@@ -1,0 +1,19 @@
+{
+  "title": "Bulk densities of mill materials",
+  "source": "[REVIEW] Values used in the pocketbook examples (fruit 0.65, bunches in thresher 0.32) plus typical values from general practice.",
+  "review": true,
+  "columns": ["Material", "Bulk density (t/m³)", "Note"],
+  "rows": [
+    ["FFB (in cage / hopper)", "0.40–0.50", "[REVIEW]"],
+    ["Sterilised bunches in thresher drum", "0.32", "p.21 example"],
+    ["Loose / threshed fruit", "0.65", "p.22 example"],
+    ["Empty fruit bunch (EFB)", "0.20–0.30", "[REVIEW]"],
+    ["Press cake", "0.35–0.45", "[REVIEW]"],
+    ["Press fibre", "0.15–0.25", "[REVIEW]"],
+    ["Nuts", "0.60–0.70", "[REVIEW]"],
+    ["Cracked mixture", "0.55–0.65", "[REVIEW]"],
+    ["Kernel", "0.55–0.60", "[REVIEW]"],
+    ["Shell", "0.55–0.65", "[REVIEW]"],
+    ["CPO at 90 °C (liquid density)", "0.8607", "p.26 example"]
+  ]
+}

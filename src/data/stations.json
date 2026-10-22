@@ -1,0 +1,316 @@
+{
+  "reviewNote": "[REVIEW] Draft written from standard milling practice because the pocketbook PDF was not available. Parameters quoted in the build plan (40–50 psi sterilisation, oil in fibre < 5%) are from the pocketbook; everything else needs expert sign-off.",
+  "stations": [
+    {
+      "id": "reception",
+      "name": "FFB Reception",
+      "order": 1,
+      "purpose": "Fresh fruit bunches (FFB) arrive by lorry, are weighed, graded for ripeness and quality, and stored on a sloping loading ramp until they go into the steriliser cages. Good grading here protects OER downstream, because unripe or rotten bunches cannot be fixed later.",
+      "howItWorks": [
+        "Lorries are weighed in and out on the weighbridge to get the net FFB weight.",
+        "Graders sample loads and sort bunches by ripeness (unripe, under-ripe, ripe, over-ripe, empty, rotten, long stalk).",
+        "Loads are tipped into ramp bays with hydraulic doors.",
+        "Bunches slide by gravity from the ramp into steriliser cages (horizontal) or a conveyor (vertical/continuous steriliser).",
+        "Loose fruit is collected separately because it carries high oil and FFA."
+      ],
+      "keyEquipment": [
+        { "name": "Weighbridge", "size": "50–80 t, 18–24 m platform" },
+        { "name": "Loading ramp", "size": "Bays with hydraulic doors, about 1 day storage" },
+        { "name": "Steriliser cages", "size": "2.5–5 t FFB each" }
+      ],
+      "keyParameters": [
+        { "name": "Ripe bunches in crop", "target": "≥ 90%" },
+        { "name": "FFB processed within", "target": "24 h of harvest (FFA rises with delay)" },
+        { "name": "Long stalk", "target": "Cut to < 5 cm" }
+      ],
+      "commonProblems": [
+        { "symptom": "High FFA in CPO", "cause": "Old or bruised FFB, long ramp storage", "action": "Process first-in-first-out; enforce harvest-to-mill time." },
+        { "symptom": "Low OER", "cause": "Unripe bunches accepted", "action": "Tighten grading; give feedback to estates / dealers." },
+        { "symptom": "Ramp doors jam", "cause": "Debris, worn hydraulic seals", "action": "Clean daily; check hydraulic pressure." }
+      ],
+      "relatedCalculators": ["oer", "ker", "massbalance"],
+      "quiz": [
+        { "q": "Why must FFB be processed quickly after harvest?", "options": ["Bunches lose weight", "Lipase enzymes raise FFA", "The ramp gets full", "Steam demand rises"], "answer": 1, "explain": "Bruised fruit activates lipase, which splits oil into free fatty acids." },
+        { "q": "What does the weighbridge give the mill?", "options": ["Oil content", "Net FFB weight received", "Ripeness", "FFA"], "answer": 1, "explain": "Gross minus tare gives net FFB, the basis for OER and KER." },
+        { "q": "Which bunch class should be rejected or penalised?", "options": ["Ripe", "Rotten", "Over-ripe with a few loose fruits", "Normal stalk"], "answer": 1, "explain": "Rotten bunches give high FFA and little oil." }
+      ]
+    },
+    {
+      "id": "sterilisation",
+      "name": "Sterilisation",
+      "order": 2,
+      "purpose": "Bunches are cooked with saturated steam under pressure. This stops the lipase enzyme that raises FFA, loosens fruitlets from the bunch so they can be threshed, softens the mesocarp for pressing, and conditions nuts so kernels come loose from the shell.",
+      "howItWorks": [
+        "Cages are pushed into a horizontal pressure vessel and the door is closed.",
+        "Steam is admitted in three peaks (triple-peak cycle). Each release drives out air, which would otherwise insulate the fruit.",
+        "Pressure is held at about 40–45 psi (≈3 bar g) for the cooking period.",
+        "Condensate is drained throughout; it carries some oil to the effluent.",
+        "Final blow-off depressurises the vessel and the cages are pulled out to the tippler."
+      ],
+      "keyEquipment": [
+        { "name": "Horizontal steriliser", "size": "Ø 2.1–2.7 m, 2–4 cages, 3 bar g design" },
+        { "name": "Steam inlet, exhaust and condensate valves", "size": "Automated by PLC" },
+        { "name": "Cage tippler / transfer carriage", "size": "—" }
+      ],
+      "keyParameters": [
+        { "name": "Cooking pressure", "target": "40–50 psi (pocketbook)" },
+        { "name": "Cooking time", "target": "75–90 min [REVIEW]" },
+        { "name": "Oil loss in condensate", "target": "≤ 0.12% FFB [REVIEW]" }
+      ],
+      "commonProblems": [
+        { "symptom": "Hard bunches (USB) after thresher", "cause": "Short cooking, air not purged, low pressure", "action": "Check peak sequence and holding time; check steam supply." },
+        { "symptom": "Low DOBI", "cause": "Over-cooking / long holding", "action": "Reduce holding time; keep cycle to design." },
+        { "symptom": "High oil in condensate", "cause": "Over-ripe fruit, long cycle", "action": "Recover condensate oil; review cycle." }
+      ],
+      "relatedCalculators": ["sterilisation", "steampipe", "steamdemand"],
+      "quiz": [
+        { "q": "Why use three steam peaks?", "options": ["To save steam", "To drive air out of the vessel", "To cool the fruit", "To speed up the cage"], "answer": 1, "explain": "Air is a poor conductor of heat; purging it lets steam reach the bunch core." },
+        { "q": "Typical cooking pressure is about:", "options": ["5 psi", "40–50 psi", "150 psi", "300 psi"], "answer": 1, "explain": "The pocketbook gives 40–50 psi." },
+        { "q": "Over-sterilisation mainly harms:", "options": ["DOBI / bleachability", "Kernel colour only", "Weighbridge accuracy", "Boiler water"], "answer": 0, "explain": "Long cooking oxidises the oil and lowers DOBI." }
+      ]
+    },
+    {
+      "id": "threshing",
+      "name": "Threshing",
+      "order": 3,
+      "purpose": "Sterilised bunches are tumbled in a rotating drum so the loosened fruitlets fall out through the bars, leaving the empty fruit bunch (EFB). Fruitlets go to the digester; EFB goes to the incinerator, mulching or a biomass plant.",
+      "howItWorks": [
+        "A hopper and auto-feeder deliver bunches evenly into the drum.",
+        "The drum turns at about 22–24 rpm, lifting and dropping bunches so fruitlets break off.",
+        "Fruitlets fall through gaps between the drum bars onto a conveyor.",
+        "EFB exits the end of the drum; some mills pass it through a second thresher or EFB press.",
+        "A fruit elevator lifts the fruitlets to the digester."
+      ],
+      "keyEquipment": [
+        { "name": "Rotary drum thresher", "rpm": "22–24", "size": "Ø 1.8–2.6 m" },
+        { "name": "Bunch auto-feeder", "size": "—" },
+        { "name": "Fruit elevator", "size": "Bucket elevator, 0.3 m/s chain" }
+      ],
+      "keyParameters": [
+        { "name": "Unstripped bunches (USB)", "target": "< 1% of bunches [REVIEW]" },
+        { "name": "Oil loss in EFB", "target": "≤ 0.6% FFB [REVIEW]" },
+        { "name": "Drum loading factor", "target": "≈ 0.05 (pocketbook example)" }
+      ],
+      "commonProblems": [
+        { "symptom": "Many unstripped bunches", "cause": "Under-sterilisation; drum overloaded", "action": "Fix steriliser cycle; feed evenly; recycle USB." },
+        { "symptom": "High oil in EFB", "cause": "Over-sterilised, fruit absorbing oil", "action": "Check cycle; consider EFB press." },
+        { "symptom": "Fruit carried over with EFB", "cause": "Drum speed too high", "action": "Check rpm against design." }
+      ],
+      "relatedCalculators": ["thresher", "elevator"],
+      "quiz": [
+        { "q": "What leaves the end of the thresher drum?", "options": ["Fruitlets", "Empty fruit bunches", "Crude oil", "Nuts"], "answer": 1, "explain": "Fruitlets fall through the bars; EFB exits the end." },
+        { "q": "Typical thresher drum speed:", "options": ["2 rpm", "22–24 rpm", "250 rpm", "1,500 rpm"], "answer": 1, "explain": "Fast enough to lift and drop bunches, slow enough not to bruise fruit." },
+        { "q": "Unstripped bunches usually point to a problem in:", "options": ["Sterilisation", "Clarification", "Boiler feed water", "Kernel drying"], "answer": 0, "explain": "Under-cooked bunches hold their fruit." }
+      ]
+    },
+    {
+      "id": "pressing",
+      "name": "Digestion & Pressing",
+      "order": 4,
+      "purpose": "Fruitlets are mashed in a heated digester to break the oil cells, then squeezed in a twin-screw press. The press gives crude oil (oil, water and solids) and a press cake of fibre and nuts.",
+      "howItWorks": [
+        "The digester (a steam-jacketed vessel with stirring arms) turns the fruit into a hot mash at about 90–95 °C.",
+        "Mash drops into the twin-screw press; cones at the outlet set the back pressure.",
+        "Crude oil drains through the press cage to a sand trap and vibrating screen.",
+        "Hot water is added to dilute the crude oil (diluted crude oil, DCO) so it separates well.",
+        "Press cake goes to the cake breaker conveyor and the nut/fibre separator."
+      ],
+      "keyEquipment": [
+        { "name": "Digester", "rpm": "25–27", "size": "3.2–4.0 m³" },
+        { "name": "Twin-screw press", "rpm": "10–14", "size": "10–20 t FFB/h" },
+        { "name": "Vibrating screen and sand trap tank", "size": "—" }
+      ],
+      "keyParameters": [
+        { "name": "Digester temperature", "target": "90–95 °C [REVIEW]" },
+        { "name": "Oil in press fibre (wet basis)", "target": "< 5% (pocketbook)" },
+        { "name": "Broken nuts in press cake", "target": "< 15% [REVIEW]" }
+      ],
+      "commonProblems": [
+        { "symptom": "High oil in fibre", "cause": "Low cone pressure, worn screws, poor digestion", "action": "Raise cone pressure; check digester level and temperature; replace worn screws." },
+        { "symptom": "Many broken nuts", "cause": "Cone pressure too high", "action": "Lower cone pressure; balance against oil loss." },
+        { "symptom": "Press trips on overload", "cause": "Uneven feed, low digester level", "action": "Keep the digester at least ¾ full." }
+      ],
+      "relatedCalculators": ["presscake", "oilloss"],
+      "quiz": [
+        { "q": "Why keep the digester full?", "options": ["To save power", "To give proper mashing and steady press feed", "To cool the fruit", "It does not matter"], "answer": 1, "explain": "A full digester gives longer residence and even press feed." },
+        { "q": "Raising press cone pressure usually:", "options": ["Lowers oil in fibre but breaks more nuts", "Raises oil loss", "Has no effect", "Lowers FFA"], "answer": 0, "explain": "It is a trade-off between oil loss and broken nuts." },
+        { "q": "Press cake contains mainly:", "options": ["Oil and water", "Fibre and nuts", "EFB", "Sludge"], "answer": 1, "explain": "Fibre and nuts go to the nut/fibre separation station." }
+      ]
+    },
+    {
+      "id": "clarification",
+      "name": "Clarification",
+      "order": 5,
+      "purpose": "Diluted crude oil is separated into clean oil and sludge. Oil rises in the clarifier tank by gravity, is purified and vacuum-dried to become CPO. Sludge is centrifuged to recover more oil before going to the effluent ponds.",
+      "howItWorks": [
+        "DCO from the vibrating screen goes to a crude oil tank and is heated.",
+        "In the continuous settling tank (clarifier), oil floats to the top and overflows to the pure oil tank.",
+        "Underflow sludge goes to a sludge tank, then desanders/decanters and sludge separators to recover oil.",
+        "Pure oil passes through a purifier (centrifuge) and a vacuum dryer to cut moisture below 0.2%.",
+        "Dry CPO is cooled and pumped to the storage tanks."
+      ],
+      "keyEquipment": [
+        { "name": "Continuous settling tank (clarifier)", "size": "3–4 h retention" },
+        { "name": "Oil purifier", "rpm": "5,000–6,500" },
+        { "name": "Vacuum dryer", "size": "—" },
+        { "name": "Decanter / sludge separator", "rpm": "1,400–3,500" }
+      ],
+      "keyParameters": [
+        { "name": "Clarifier temperature", "target": "90–95 °C [REVIEW]" },
+        { "name": "Moisture in CPO", "target": "≤ 0.20%" },
+        { "name": "Oil in final sludge", "target": "≤ 0.8% [REVIEW]" }
+      ],
+      "commonProblems": [
+        { "symptom": "Oil in sludge high", "cause": "Low temperature, poor dilution, overloaded separator", "action": "Check temperature and dilution ratio; clean separator nozzles." },
+        { "symptom": "High moisture/dirt in CPO", "cause": "Purifier or vacuum dryer fault", "action": "Check purifier bowl and dryer vacuum." },
+        { "symptom": "Emulsion layer in clarifier", "cause": "Over-ripe fruit, too much water", "action": "Adjust dilution; increase temperature." }
+      ],
+      "relatedCalculators": ["clarification", "pumppower", "oilloss"],
+      "quiz": [
+        { "q": "Oil separates in the clarifier because:", "options": ["It is heavier than water", "It is lighter than water and sludge", "It is filtered", "It is evaporated"], "answer": 1, "explain": "Gravity settling: oil (≈0.86 t/m³) floats on water and solids." },
+        { "q": "What is the vacuum dryer for?", "options": ["Remove FFA", "Remove moisture", "Cool the oil", "Remove kernel"], "answer": 1, "explain": "It lowers moisture so CPO keeps its quality in storage." },
+        { "q": "The sludge tank is sized on 50% of:", "options": ["FFB", "Crude oil (DCO)", "EFB", "Fibre"], "answer": 1, "explain": "A pocketbook erratum: it is 50% of crude oil, not FFB." }
+      ]
+    },
+    {
+      "id": "nutfibre",
+      "name": "Nut / Fibre Separation",
+      "order": 6,
+      "purpose": "Press cake is broken up and an air stream lifts the light fibre away from the heavy nuts. Fibre is the main boiler fuel. Nuts go to polishing and cracking.",
+      "howItWorks": [
+        "A cake breaker conveyor breaks up the press cake and dries it slightly.",
+        "In the de-pericarper column, an air stream from a fan lifts fibre upward to a cyclone.",
+        "Nuts fall to a polishing drum that removes remaining fibre.",
+        "Fibre from the cyclone goes to the boiler fuel conveyor.",
+        "A de-stoner removes stones and heavy debris from the nuts pneumatically."
+      ],
+      "keyEquipment": [
+        { "name": "Cake breaker conveyor (CBC)", "rpm": "60–80" },
+        { "name": "De-pericarper column and fan", "size": "Air:fibre ≈ 4:1" },
+        { "name": "Polishing drum", "size": "—" },
+        { "name": "De-stoner", "size": "Air:nut ≈ 5:1, 16 m/s" }
+      ],
+      "keyParameters": [
+        { "name": "Separating air velocity", "target": "≈ 10 m/s (pocketbook example)" },
+        { "name": "Nuts carried into fibre", "target": "Minimal: check the fibre cyclone outlet" },
+        { "name": "Air density used for sizing", "target": "1.1777 kg/m³ at 27 °C (corrected)" }
+      ],
+      "commonProblems": [
+        { "symptom": "Nuts in fibre (kernel loss)", "cause": "Air velocity too high", "action": "Close the damper slightly." },
+        { "symptom": "Fibre with nuts to cracker", "cause": "Air velocity too low; wet cake", "action": "Open damper; check cake breaker." },
+        { "symptom": "Column choking", "cause": "Overfeeding, wet fibre", "action": "Regulate feed; check fan belts." }
+      ],
+      "relatedCalculators": ["depericarper", "column", "destoner"],
+      "quiz": [
+        { "q": "What separates fibre from nuts?", "options": ["Water", "An air stream", "A magnet", "A screen press"], "answer": 1, "explain": "Fibre is light and is carried up by air; nuts fall." },
+        { "q": "Correct air density at 27 °C for sizing:", "options": ["1.777 kg/m³", "1.1777 kg/m³", "0.8607 kg/m³", "1,000 kg/m³"], "answer": 1, "explain": "1.777 is a misprint in the pocketbook." },
+        { "q": "Fibre is mainly used as:", "options": ["Fertiliser", "Boiler fuel", "Animal feed", "Landfill"], "answer": 1, "explain": "Fibre is the main boiler fuel, with shell as a supplement." }
+      ]
+    },
+    {
+      "id": "kernel",
+      "name": "Kernel Recovery",
+      "order": 7,
+      "purpose": "Nuts are cracked and the kernels are separated from the shells, then dried and stored. Kernel is the second product of the mill, measured as KER.",
+      "howItWorks": [
+        "Nuts are conditioned (dried or graded) so the kernel shrinks from the shell.",
+        "A ripple mill or centrifugal cracker breaks the shell.",
+        "A winnowing column removes light shell fragments with air.",
+        "A clay bath or hydrocyclone separates kernel from heavier shell by density.",
+        "Kernels are dried in silos to about 7% moisture and stored in bulk."
+      ],
+      "keyEquipment": [
+        { "name": "Ripple mill", "rpm": "1,500–2,000" },
+        { "name": "Winnowing column", "size": "12–14 m/s air" },
+        { "name": "Hydrocyclone / clay bath", "size": "—" },
+        { "name": "Kernel drying silo", "size": "12–16 h retention" }
+      ],
+      "keyParameters": [
+        { "name": "Cracking efficiency", "target": "≥ 95% [REVIEW]" },
+        { "name": "Kernel moisture after drying", "target": "≤ 7%" },
+        { "name": "Dirt in kernel", "target": "≤ 6% [REVIEW]" }
+      ],
+      "commonProblems": [
+        { "symptom": "Many whole nuts after cracker", "cause": "Worn rotor bars, wrong gap", "action": "Adjust gap; replace rotor bars." },
+        { "symptom": "High kernel in shell (kernel loss)", "cause": "Winnowing air too strong, hydrocyclone setting", "action": "Adjust damper and cyclone pressure." },
+        { "symptom": "Mouldy kernel", "cause": "Under-dried", "action": "Check silo heater and air flow." }
+      ],
+      "relatedCalculators": ["ker", "massbalance"],
+      "quiz": [
+        { "q": "A ripple mill is used to:", "options": ["Dry kernels", "Crack nuts", "Press fruit", "Pump sludge"], "answer": 1, "explain": "The rotor bars throw nuts against a ripple plate to crack them." },
+        { "q": "Hydrocyclones separate kernel from shell by:", "options": ["Colour", "Density", "Magnetism", "Size only"], "answer": 1, "explain": "Shell is denser than kernel." },
+        { "q": "Typical stored kernel moisture:", "options": ["About 7%", "About 25%", "About 50%", "0%"], "answer": 0, "explain": "Drying to about 7% stops mould and FFA rise in the kernel." }
+      ]
+    },
+    {
+      "id": "boiler",
+      "name": "Boiler & Engine Room",
+      "order": 8,
+      "purpose": "The mill makes its own steam and power from biomass. A water-tube boiler burns fibre and shell; high-pressure steam drives a back-pressure turbine for electricity, and the exhaust steam (about 3 bar g) is used for sterilisation and heating.",
+      "howItWorks": [
+        "Fibre and shell are fed to the furnace; induced and forced draught fans control combustion.",
+        "Treated feed water is heated in the boiler to make steam at 20–30 bar g.",
+        "Steam drives a back-pressure turbine coupled to an alternator.",
+        "Turbine exhaust steam goes to the back pressure vessel (BPV) at ≈3 bar g and on to the steriliser and process.",
+        "A diesel genset covers start-up and low-crop periods."
+      ],
+      "keyEquipment": [
+        { "name": "Water-tube boiler", "size": "20–60 t steam/h, 20–30 bar g" },
+        { "name": "Back-pressure steam turbine", "size": "1–3 MW" },
+        { "name": "Back pressure vessel (BPV)", "size": "≈3 bar g" },
+        { "name": "Diesel generator", "size": "Standby / start-up" }
+      ],
+      "keyParameters": [
+        { "name": "Process steam demand", "target": "≈272.5 kg/t FFB (pocketbook example)" },
+        { "name": "Exhaust (back) pressure", "target": "≈3.06 bar (pocketbook example)" },
+        { "name": "Boiler water TDS / pH", "target": "Per water treatment programme [REVIEW]" }
+      ],
+      "commonProblems": [
+        { "symptom": "Black smoke", "cause": "Too much fuel, too little air, wet fibre", "action": "Balance fuel feed and draught; dry fibre." },
+        { "symptom": "Low steam pressure", "cause": "Poor fuel, fouled tubes", "action": "Check fuel mix (add shell); soot-blow; clean tubes." },
+        { "symptom": "Turbine trips", "cause": "Overload, low steam pressure", "action": "Shed load; stabilise boiler." }
+      ],
+      "relatedCalculators": ["steampipe", "steamdemand", "motoramps", "pfcorrection", "motorspeed", "startingcurrent"],
+      "quiz": [
+        { "q": "Why use a back-pressure turbine?", "options": ["It makes the most power", "Its exhaust steam is used for processing", "It needs no steam", "It runs on diesel"], "answer": 1, "explain": "The mill needs low-pressure steam, so it generates power on the way down." },
+        { "q": "Main boiler fuels in a palm oil mill:", "options": ["Coal and gas", "Fibre and shell", "EFB only", "Diesel"], "answer": 1, "explain": "Press fibre and shell are burned; EFB is wetter and harder to burn." },
+        { "q": "Correcting PF from 0.55 to 0.95 needs a multiplier of:", "options": ["1.490", "1.190", "0.536", "0.329"], "answer": 1, "explain": "tan(acos 0.55) − tan(acos 0.95) = 1.190. The pocketbook table misprints 1.490." }
+      ]
+    },
+    {
+      "id": "effluent",
+      "name": "Effluent (POME) Treatment",
+      "order": 9,
+      "purpose": "Palm oil mill effluent (POME) is hot, acidic and very high in organic matter. It is cooled, oil is recovered, and it is treated biologically in anaerobic and aerobic stages until it meets DOE discharge limits or is used for land application. Biogas from the anaerobic stage can be captured for energy.",
+      "howItWorks": [
+        "Sludge, condensate and hydrocyclone water flow to a fat pit / oil trap where floating oil is skimmed.",
+        "Cooling and mixing ponds bring the temperature down.",
+        "Anaerobic ponds or closed digesters break down most of the BOD and produce biogas (methane).",
+        "Facultative and aerobic ponds (often with aerators) polish the effluent.",
+        "Final effluent is discharged or used for land application, under DOE licence conditions."
+      ],
+      "keyEquipment": [
+        { "name": "Fat pit / oil recovery pit", "size": "—" },
+        { "name": "Anaerobic ponds or tank digesters", "size": "40–60 day retention [REVIEW]" },
+        { "name": "Biogas capture (covered lagoon / tank)", "size": "—" },
+        { "name": "Aerators", "size": "—" }
+      ],
+      "keyParameters": [
+        { "name": "Raw POME BOD", "target": "≈25,000 mg/L (typical)" },
+        { "name": "Final discharge BOD", "target": "≤ 100 mg/L (20 mg/L in many areas)" },
+        { "name": "POME generation", "target": "≈0.6–0.7 m³/t FFB [REVIEW]" }
+      ],
+      "commonProblems": [
+        { "symptom": "Pond pH drops, foul smell", "cause": "Anaerobic pond overloaded / soured", "action": "Reduce loading; recirculate; desludge." },
+        { "symptom": "Final BOD above limit", "cause": "Short retention, silted ponds", "action": "Desludge ponds; add aeration or polishing plant." },
+        { "symptom": "Oil on pond surface", "cause": "Poor recovery upstream", "action": "Improve sludge separator and fat pit skimming." }
+      ],
+      "relatedCalculators": ["oilloss", "massbalance"],
+      "quiz": [
+        { "q": "Which stage produces biogas?", "options": ["Aerobic", "Anaerobic", "Cooling pond", "Fat pit"], "answer": 1, "explain": "Methanogenic bacteria in the anaerobic stage produce methane." },
+        { "q": "Raw POME BOD is roughly:", "options": ["25 mg/L", "250 mg/L", "25,000 mg/L", "2.5 mg/L"], "answer": 2, "explain": "POME is about 100 times stronger than domestic sewage." },
+        { "q": "Who sets mill effluent discharge limits in Malaysia?", "options": ["MPOB", "DOE", "PORAM", "TNB"], "answer": 1, "explain": "The Department of Environment (DOE) licenses mill discharges." }
+      ]
+    }
+  ]
+}

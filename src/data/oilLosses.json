@@ -1,0 +1,14 @@
+{
+  "title": "Oil loss benchmarks by stream",
+  "source": "[REVIEW] Typical Malaysian mill benchmarks from general practice. Replace with p.6 values.",
+  "review": true,
+  "streams": [
+    { "id": "efb", "name": "Empty fruit bunch (EFB)", "oilInProductPct": 2.7, "productToFfbPct": 22.0, "benchmarkLossPct": 0.60 },
+    { "id": "fibre", "name": "Press fibre", "oilInProductPct": 5.0, "productToFfbPct": 13.0, "benchmarkLossPct": 0.65 },
+    { "id": "nut", "name": "Nuts", "oilInProductPct": 0.8, "productToFfbPct": 12.0, "benchmarkLossPct": 0.10 },
+    { "id": "sludge", "name": "Final effluent / sludge", "oilInProductPct": 0.8, "productToFfbPct": 65.0, "benchmarkLossPct": 0.52 },
+    { "id": "condensate", "name": "Steriliser condensate", "oilInProductPct": 0.8, "productToFfbPct": 15.0, "benchmarkLossPct": 0.12 }
+  ],
+  "totalBenchmarkPct": 1.99,
+  "trafficLight": { "greenMaxRatio": 1.0, "amberMaxRatio": 1.2 }
+}

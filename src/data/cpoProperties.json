@@ -1,0 +1,15 @@
+{
+  "title": "CPO properties vs temperature",
+  "source": "[REVIEW] Density from the approximation ρ ≈ 0.9208 − 0.00068·T (t/m³); specific heat typical. Replace with the pocketbook table.",
+  "review": true,
+  "columns": ["Temperature (°C)", "Density (t/m³)", "Specific heat (kJ/kg·K)"],
+  "rows": [
+    [40, 0.894, 2.01],
+    [50, 0.887, 2.03],
+    [60, 0.880, 2.06],
+    [70, 0.873, 2.08],
+    [80, 0.866, 2.10],
+    [90, 0.860, 2.13],
+    [100, 0.853, 2.15]
+  ]
+}

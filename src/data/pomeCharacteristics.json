@@ -1,0 +1,17 @@
+{
+  "title": "Raw POME characteristics",
+  "source": "[REVIEW] Typical published values (Ma, 2000). Check against the pocketbook.",
+  "review": true,
+  "columns": ["Parameter", "Typical value", "Range", "Unit"],
+  "rows": [
+    ["Temperature", 85, "80–90", "°C"],
+    ["pH", 4.2, "3.4–5.2", "—"],
+    ["BOD (3-day, 30 °C)", 25000, "10,250–43,750", "mg/L"],
+    ["COD", 51000, "15,000–100,000", "mg/L"],
+    ["Total solids", 40500, "11,500–79,000", "mg/L"],
+    ["Suspended solids", 18000, "5,000–54,000", "mg/L"],
+    ["Oil and grease", 4000, "130–18,000", "mg/L"],
+    ["Ammoniacal nitrogen", 35, "4–80", "mg/L"],
+    ["Total nitrogen", 750, "180–1,400", "mg/L"]
+  ]
+}

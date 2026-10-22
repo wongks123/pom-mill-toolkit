@@ -1,0 +1,23 @@
+{
+  "title": "Standard steel pipe sizes (Schedule 40 / STD internal diameter)",
+  "source": "ASME B36.10M. Not from the pocketbook.",
+  "review": false,
+  "rows": [
+    { "nps": "1\"", "dn": 25, "idMm": 26.6 },
+    { "nps": "1-1/2\"", "dn": 40, "idMm": 40.9 },
+    { "nps": "2\"", "dn": 50, "idMm": 52.5 },
+    { "nps": "2-1/2\"", "dn": 65, "idMm": 62.7 },
+    { "nps": "3\"", "dn": 80, "idMm": 77.9 },
+    { "nps": "4\"", "dn": 100, "idMm": 102.3 },
+    { "nps": "5\"", "dn": 125, "idMm": 128.2 },
+    { "nps": "6\"", "dn": 150, "idMm": 154.1 },
+    { "nps": "8\"", "dn": 200, "idMm": 202.7 },
+    { "nps": "10\"", "dn": 250, "idMm": 254.5 },
+    { "nps": "12\"", "dn": 300, "idMm": 304.8 },
+    { "nps": "14\"", "dn": 350, "idMm": 333.4 },
+    { "nps": "16\"", "dn": 400, "idMm": 381.0 },
+    { "nps": "18\"", "dn": 450, "idMm": 428.7 },
+    { "nps": "20\"", "dn": 500, "idMm": 477.8 },
+    { "nps": "24\"", "dn": 600, "idMm": 574.6 }
+  ]
+}

@@ -1,0 +1,57 @@
+import type { Table } from '../components/DataTable'
+import bulkDensities from '../data/bulkDensities.json'
+import cpoProperties from '../data/cpoProperties.json'
+import fattyAcids from '../data/fattyAcids.json'
+import pome from '../data/pomeCharacteristics.json'
+import doe from '../data/doeLimits.json'
+import misc from '../data/referenceMisc.json'
+import oilLosses from '../data/oilLosses.json'
+import pressCake from '../data/pressCakeTargets.json'
+import steamTable from '../data/steamTable.json'
+import pipeSizes from '../data/pipeSizes.json'
+import startingMethods from '../data/startingMethods.json'
+import cost from '../data/productionCost.json'
+
+export const TABLES: Table[] = [
+  { id: 'bulkDensities', ...bulkDensities },
+  { id: 'cpoProperties', ...cpoProperties },
+  { id: 'fattyAcids', ...fattyAcids },
+  ...misc.tables,
+  { id: 'pome', ...pome },
+  { id: 'doe', title: doe.title, source: doe.source, review: doe.review, columns: doe.columns, rows: doe.rows },
+  {
+    id: 'oilLosses', title: oilLosses.title, source: oilLosses.source, review: oilLosses.review,
+    columns: ['Stream', 'Oil in product (%)', 'Product to FFB (%)', 'Benchmark loss (% FFB)'],
+    rows: oilLosses.streams.map((s) => [s.name, s.oilInProductPct, s.productToFfbPct, s.benchmarkLossPct]),
+  },
+  {
+    id: 'pressCake', title: pressCake.title, source: pressCake.source, review: pressCake.review,
+    columns: ['Parameter', 'Target'],
+    rows: pressCake.targets.map((t) => [t.name, `${t.min}–${t.max}${t.unit}`]),
+  },
+  {
+    id: 'steam', title: steamTable.title, source: steamTable.source, review: steamTable.review,
+    columns: ['Pressure (bar abs)', 'Temperature (°C)', 'Specific volume (m³/kg)'],
+    rows: steamTable.rows.map((r) => [r.pAbsBar, r.tempC, r.vg]),
+  },
+  {
+    id: 'pipes', title: pipeSizes.title, source: pipeSizes.source, review: pipeSizes.review,
+    columns: ['NPS', 'DN', 'Internal diameter (mm)'],
+    rows: pipeSizes.rows.map((r) => [r.nps, r.dn, r.idMm]),
+  },
+  {
+    id: 'starting', title: startingMethods.title, source: startingMethods.source, review: startingMethods.review,
+    columns: ['Method', 'Starting current (× FLC)', 'Starting torque'],
+    rows: startingMethods.rows.map((r) => [r.method, r.multipleOfFlc, r.torque]),
+  },
+  {
+    id: 'motorSpeed', title: 'Induction motor synchronous speed', source: 'N = 120 f / p (MPOB Pocketbook p.18)', review: false,
+    columns: ['Poles', '50 Hz (rpm)', '60 Hz (rpm)', '4-pole 50 Hz full load (typ.)'],
+    rows: [2, 4, 6, 8, 10, 12].map((p) => [p, 6000 / p, 7200 / p, p === 4 ? '1,440–1,480' : '']),
+  },
+  {
+    id: 'cost', title: cost.title, source: cost.source, review: cost.review,
+    columns: ['Category', ...cost.capacities.map((c) => `${c} t/h`)],
+    rows: cost.categories.map((c) => [c.name, ...c.values]),
+  },
+]

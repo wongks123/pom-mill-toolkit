@@ -1,0 +1,37 @@
+{
+  "title": "Mill mass balance, 1,000 kg FFB basis",
+  "source": "[REVIEW] Typical values from general practice, chosen to close the balance. Replace with the p.4 diagram.",
+  "review": true,
+  "basisKg": 1000,
+  "nodes": [
+    { "id": "ffb", "name": "FFB", "col": 0 },
+    { "id": "sffb", "name": "Sterilised FFB", "col": 1 },
+    { "id": "cond", "name": "Steriliser condensate", "col": 1, "product": true },
+    { "id": "fruit", "name": "Fruitlets", "col": 2 },
+    { "id": "efb", "name": "EFB", "col": 2, "product": true },
+    { "id": "crude", "name": "Crude oil mix", "col": 3 },
+    { "id": "cake", "name": "Press cake", "col": 3 },
+    { "id": "cpo", "name": "CPO", "col": 4, "product": true },
+    { "id": "pome", "name": "Sludge / POME", "col": 4, "product": true },
+    { "id": "fibre", "name": "Fibre", "col": 4, "product": true },
+    { "id": "nut", "name": "Nuts", "col": 4 },
+    { "id": "kernel", "name": "Kernel", "col": 5, "product": true },
+    { "id": "shell", "name": "Shell", "col": 5, "product": true },
+    { "id": "nutloss", "name": "Moisture / dirt", "col": 5, "product": true }
+  ],
+  "links": [
+    { "from": "ffb", "to": "sffb", "kg": 880 },
+    { "from": "ffb", "to": "cond", "kg": 120 },
+    { "from": "sffb", "to": "fruit", "kg": 650 },
+    { "from": "sffb", "to": "efb", "kg": 230 },
+    { "from": "fruit", "to": "crude", "kg": 390 },
+    { "from": "fruit", "to": "cake", "kg": 260 },
+    { "from": "crude", "to": "cpo", "kg": 205 },
+    { "from": "crude", "to": "pome", "kg": 185 },
+    { "from": "cake", "to": "fibre", "kg": 130 },
+    { "from": "cake", "to": "nut", "kg": 130 },
+    { "from": "nut", "to": "kernel", "kg": 50 },
+    { "from": "nut", "to": "shell", "kg": 65 },
+    { "from": "nut", "to": "nutloss", "kg": 15 }
+  ]
+}

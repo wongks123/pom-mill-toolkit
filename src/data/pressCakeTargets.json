@@ -1,0 +1,12 @@
+{
+  "title": "Press cake targets",
+  "source": "[REVIEW] Typical screw-press targets from general practice. Replace with p.7 values.",
+  "review": true,
+  "targets": [
+    { "key": "oilInFibreWet", "name": "Oil in press fibre (wet basis)", "unit": "%", "min": 0, "max": 5.0 },
+    { "key": "oilInFibreDry", "name": "Oil in press fibre (dry basis)", "unit": "%", "min": 0, "max": 8.5 },
+    { "key": "moisture", "name": "Moisture in press cake", "unit": "%", "min": 35, "max": 42 },
+    { "key": "brokenNuts", "name": "Broken nuts in press cake", "unit": "%", "min": 0, "max": 15 },
+    { "key": "nosToCake", "name": "Non-oily solids (NOS) in fibre", "unit": "%", "min": 45, "max": 60 }
+  ]
+}
