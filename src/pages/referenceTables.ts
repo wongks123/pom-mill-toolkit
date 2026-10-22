@@ -11,9 +11,15 @@ import steamTable from '../data/steamTable.json'
 import pipeSizes from '../data/pipeSizes.json'
 import startingMethods from '../data/startingMethods.json'
 import cost from '../data/productionCost.json'
+import conveyors from '../data/conveyors.json'
 
 export const TABLES: Table[] = [
   { id: 'bulkDensities', ...bulkDensities },
+  {
+    id: 'conveyorMaterials', title: conveyors.title, source: conveyors.source, review: conveyors.review,
+    columns: ['Material', 'Bulk density (t/m³)', 'Scraper μ', 'Screw λ', 'Screw fill φ', 'Belt surcharge (°)', 'Max belt incline (°)', 'Usual conveyors'],
+    rows: conveyors.materials.map((m) => [m.name, m.density, m.scraperMu, m.screwLambda, m.screwFill, m.surcharge, m.maxBeltIncline, m.suits.map((t) => conveyors.types.find((x) => x.id === t)?.name ?? t).join(', ')]),
+  },
   { id: 'cpoProperties', ...cpoProperties },
   { id: 'fattyAcids', ...fattyAcids },
   ...misc.tables,

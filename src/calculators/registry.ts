@@ -8,11 +8,12 @@ import { motorAmps, motorSpeed, pfCorrection, startingCurrent } from '../engine/
 import { GallonType, pipeVelocity, pumpEfficiency, pumpPowerImperial, pumpPowerSI } from '../engine/pumping'
 import { massBalance, oerFromBunch, oerKerFromProduction, oilLoss, pressCakeCheck } from '../engine/process'
 import { productionCost } from '../engine/cost'
+import { CONVEYOR_MATERIALS, CONVEYOR_TYPES, conveyorSizing } from '../engine/conveyor'
 import oilLossData from '../data/oilLosses.json'
 import pressCakeData from '../data/pressCakeTargets.json'
 import startingMethods from '../data/startingMethods.json'
 import type { CalcDef, InputDef } from './types'
-import { CostExtra, OilLossExtra, PfTableExtra, SterilisationExtra } from './extras'
+import { ConveyorExtra, CostExtra, OilLossExtra, PfTableExtra, SterilisationExtra } from './extras'
 
 const capacity: InputDef = { key: 'capacityTph', label: 'Mill capacity', unit: 't FFB/h', default: 45, typical: [10, 120], project: 'capacityTph' }
 const gallonOpt: InputDef = { key: 'gallon', label: 'Gallon type', default: 0, options: [{ value: 0, label: 'Imperial (constant 3,300)' }, { value: 1, label: 'US (constant 3,960)' }] }
@@ -270,6 +271,83 @@ export const CALCULATORS: CalcDef[] = [
       }
     },
     sizing: true,
+  },
+  {
+    id: 'conveyor',
+    category: 'mechanical',
+    title: 'Conveyor sizing',
+    purpose: 'Speed, motor power, gear ratio and gearbox size for scraper, screw, belt and chain conveyors handling mill materials.',
+    source: 'iTake conveyor sizing sheet; CEMA, DIN 15262 (screw) and ISO 5048 (belt) methods. Not in the MPOB Pocketbook. [REVIEW] material constants.',
+    formula: [
+      'Qv = Q / ρ',
+      'Scraper: v = Qv / (3600·W·h·φ·k);  F = g·[m·L·(μ·cos θ + sin θ) + 2·qc·L·μc·cos θ]',
+      'Screw: N = Qv / (60·π/4·D²·S·φ·k);  P = Q·(λ·L·cos θ + H)/367 + D·L/20',
+      'Belt: v = Qv / (3600·A·k);  F = C·f·L·g·[qRO + (2qB + qG)·cos θ] + qG·H·g',
+      'Elevator: v = Qv·p / (3600·V·φ);  P = 2·Q(t/s)·g·H',
+      'Shaft rpm = 60·v / (π·D);  Motor ≥ P / η × margin',
+      'Ratio = motor rpm / shaft rpm;  Torque = 9550·kW / n × SF',
+    ],
+    inputs: [
+      { key: 'type', label: 'Conveyor type', default: 0, options: CONVEYOR_TYPES.map((t, i) => ({ value: i, label: t.name })) },
+      { key: 'material', label: 'Material handled', default: 0, options: CONVEYOR_MATERIALS.map((m, i) => ({ value: i, label: `${m.name} (${m.density} t/m³)` })) },
+      { key: 'Q', label: 'Target capacity', unit: 't/h', default: 60, typical: [0.5, 150] },
+      { key: 'L', label: 'Conveyor length', unit: 'm', default: 20, typical: [2, 80], showIf: (v) => v.type !== 3 },
+      { key: 'incline', label: 'Incline angle', unit: '°', default: 0, allowZero: true, max: 90, typical: [0, 30], showIf: (v) => v.type !== 3 },
+      { key: 'liftM', label: 'Lift height', unit: 'm', default: 14, typical: [3, 30], showIf: (v) => v.type === 3 },
+      // Scraper bar conveyor
+      { key: 'troughW', label: 'Trough width', unit: 'mm', default: 1000, typical: [300, 1500], showIf: (v) => v.type === 0 },
+      { key: 'flightH', label: 'Flight height', unit: 'mm', default: 300, typical: [75, 400], showIf: (v) => v.type === 0 },
+      // Screw conveyor
+      { key: 'screwD', label: 'Screw diameter', unit: 'mm', default: 400, typical: [150, 800], showIf: (v) => v.type === 1 },
+      { key: 'pitchRatio', label: 'Pitch / diameter', default: 1, typical: [0.5, 1.5], hint: 'Standard pitch = 1', showIf: (v) => v.type === 1 },
+      // Belt conveyor
+      { key: 'beltW', label: 'Belt width', unit: 'mm', default: 800, typical: [400, 1400], showIf: (v) => v.type === 2 },
+      { key: 'trough', label: 'Troughing angle', default: 20, options: [0, 20, 30, 35, 45].map((a) => ({ value: a, label: a === 0 ? 'Flat belt' : `${a}° three-roll` })), showIf: (v) => v.type === 2 },
+      { key: 'pulleyD', label: 'Drive pulley diameter', unit: 'mm', default: 500, typical: [250, 1000], showIf: (v) => v.type === 2 },
+      { key: 'beltKg', label: 'Belt mass', unit: 'kg/m', default: 10, typical: [4, 30], showIf: (v) => v.type === 2 },
+      { key: 'idlerKg', label: 'Idler rotating mass (carry + return)', unit: 'kg/m', default: 15, typical: [5, 40], showIf: (v) => v.type === 2 },
+      // Chain (bucket) elevator
+      { key: 'bucketL', label: 'Bucket / flight volume', unit: 'L', default: 50, typical: [2, 200], showIf: (v) => v.type === 3 },
+      { key: 'bucketP', label: 'Bucket pitch', unit: 'm', default: 0.6, typical: [0.2, 1], showIf: (v) => v.type === 3 },
+      // Scraper and elevator
+      { key: 'fill', label: 'Fill factor', default: 0.6, max: 1, typical: [0.4, 0.85], showIf: (v) => v.type === 0 || v.type === 3 },
+      { key: 'pcd', label: 'Drive sprocket PCD', unit: 'mm', default: 400, typical: [150, 800], showIf: (v) => v.type === 0 || v.type === 3 },
+      { key: 'chainKg', label: 'Chain + flights mass (per strand)', unit: 'kg/m', default: 40, typical: [5, 120], showIf: (v) => v.type === 0 },
+      { key: 'chainMu', label: 'Chain sliding friction μc', default: 0.3, typical: [0.1, 0.4], showIf: (v) => v.type === 0 },
+      // Drive
+      { key: 'rho', label: 'Bulk density override', unit: 't/m³', default: 0, allowZero: true, typical: [0, 1.2], hint: '0 = use material table' },
+      { key: 'motorRpm', label: 'Motor speed', unit: 'rpm', default: 1450, typical: [700, 3000], hint: '4-pole 50 Hz' },
+      { key: 'margin', label: 'Power margin', default: 1.2, typical: [1, 1.5] },
+      { key: 'gearSF', label: 'Gearbox service factor', default: 1.5, typical: [1, 2.5], hint: 'Heavy shock, 24 h duty ≈ 1.5–2' },
+    ],
+    compute: (v) => {
+      const type = CONVEYOR_TYPES[v.type]
+      const material = CONVEYOR_MATERIALS[v.material]
+      const r = conveyorSizing({
+        type: type.id, materialId: material.id, capacityTph: v.Q, lengthM: v.L, inclineDeg: v.type === 3 ? 90 : v.incline, densityOverride: v.rho,
+        motorRpm: v.motorRpm, powerMargin: v.margin, gearServiceFactor: v.gearSF,
+        troughWidthMm: v.troughW, flightHeightMm: v.flightH, fill: v.fill, sprocketPcdMm: v.pcd, chainKgPerM: v.chainKg, chainMu: v.chainMu,
+        screwDiameterMm: v.screwD, pitchRatio: v.pitchRatio,
+        beltWidthMm: v.beltW, troughDeg: v.trough, pulleyMm: v.pulleyD, beltKgPerM: v.beltKg, idlerKgPerM: v.idlerKg,
+        bucketL: v.bucketL, bucketPitchM: v.bucketP, liftM: v.liftM,
+      })
+      const x = r.values
+      return {
+        primary: { label: 'Required motor power', value: x.requiredKw, unit: 'kW', digits: 2 },
+        outputs: [
+          { label: v.type === 1 ? 'Screw speed' : 'Conveyor speed', value: v.type === 1 ? x.shaftRpm : x.speedMs, unit: v.type === 1 ? 'rpm' : 'm/s', digits: 2 },
+          { label: 'Required conveyor RPM', value: x.shaftRpm, unit: 'rpm', digits: 1 },
+          { label: 'Shaft power', value: x.shaftKw, unit: 'kW', digits: 2 },
+          { label: 'Selected motor', value: x.motorKw, unit: 'kW', digits: 2 },
+          { label: 'Selected gearbox ratio', value: x.ratioSelected, unit: ': 1', digits: 1 },
+          { label: 'Gearbox design torque', value: x.designTorqueNm, unit: 'N·m', digits: 0 },
+        ],
+        steps: r.steps,
+        warnings: r.warnings,
+        data: { values: x, material, typeId: type.id },
+      }
+    },
+    Extra: ConveyorExtra,
   },
   {
     id: 'depericarper',

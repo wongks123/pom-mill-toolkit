@@ -9,6 +9,7 @@ import { motorAmps, pfCorrection, pfMultiplier } from '../electrical'
 import { pumpPowerImperial } from '../pumping'
 import { massBalance, oerFromBunch, oilLoss } from '../process'
 import { convert, convertTemperature } from '../units'
+import { conveyorSizing } from '../conveyor'
 import { InputError } from '../types'
 
 /** Asserts |actual − expected| ≤ 0.5% of expected (docs/test-cases.md tolerance). */
@@ -129,6 +130,52 @@ describe('T12 Pump (imperial)', () => {
 describe('T13 OER', () => {
   it('oil/bunch 24.07%', () => {
     near(oerFromBunch({ oilToBunchPct: 24.07, factor: 0.855 }).values.oerPct, 20.58)
+  })
+})
+
+const drive = { lengthM: 20, inclineDeg: 0, densityOverride: 0, motorRpm: 1450, powerMargin: 1.2, gearServiceFactor: 1.5 }
+
+describe('T14 Scraper bar conveyor', () => {
+  it('FFB 60 t/h, W 1000, h 300, φ 0.6, L 20, PCD 400, chain 40 kg/m, μc 0.3', () => {
+    const r = conveyorSizing({ ...drive, type: 'scraper', materialId: 'ffb', capacityTph: 60, troughWidthMm: 1000, flightHeightMm: 300, fill: 0.6, sprocketPcdMm: 400, chainKgPerM: 40, chainMu: 0.3 }).values
+    near(r.speedMs, 0.1543)
+    near(r.shaftKw, 2.525)
+    near(r.requiredKw, 3.788)
+    near(r.shaftRpm, 7.368)
+    expect(r.motorKw).toBe(4)
+    expect(r.ratioSelected).toBe(200)
+    near(r.designTorqueNm, 7903)
+  })
+})
+
+describe('T15 Screw conveyor', () => {
+  it('Kernel 10 t/h, D 400, pitch 1D, L 20', () => {
+    const r = conveyorSizing({ ...drive, type: 'screw', materialId: 'kernel', capacityTph: 10, screwDiameterMm: 400, pitchRatio: 1 }).values
+    near(r.shaftRpm, 12.70)
+    near(r.shaftKw, 1.490)
+    expect(r.motorKw).toBe(2.2)
+    expect(r.ratioSelected).toBe(125)
+  })
+})
+
+describe('T16 Belt conveyor', () => {
+  it('FFB 60 t/h, B 800, 20° trough, 10° incline, L 20', () => {
+    const r = conveyorSizing({ ...drive, type: 'belt', materialId: 'ffb', capacityTph: 60, inclineDeg: 10, beltWidthMm: 800, troughDeg: 20, pulleyMm: 500, beltKgPerM: 10, idlerKgPerM: 15 }).values
+    near(r.speedMs, 0.5292)
+    near(r.shaftRpm, 20.21)
+    expect(r.motorKw).toBe(1.5)
+  })
+})
+
+describe('T17 Chain (bucket) elevator', () => {
+  it('Nut 10 t/h, 10 L buckets, pitch 0.4, φ 0.75, H 14', () => {
+    const r = conveyorSizing({ ...drive, type: 'elevator', materialId: 'nut', capacityTph: 10, inclineDeg: 90, bucketL: 10, bucketPitchM: 0.4, fill: 0.75, liftM: 14, sprocketPcdMm: 400 }).values
+    near(r.speedMs, 0.2279)
+    near(r.shaftKw, 0.763)
+    expect(r.motorKw).toBe(1.5)
+  })
+  it('rejects missing size inputs', () => {
+    expect(() => conveyorSizing({ ...drive, type: 'screw', materialId: 'kernel', capacityTph: 10 })).toThrow(InputError)
   })
 })
 

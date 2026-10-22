@@ -20,10 +20,14 @@ export function CalculatorShell({ def }: { def: CalcDef }) {
 
   const { out, error, values } = useMemo(() => {
     const values: Record<string, number> = {}
+    for (const i of def.inputs) values[i.key] = Number(raw[i.key])
     for (const i of def.inputs) {
+      if (i.showIf && !i.showIf(values)) {
+        if (!Number.isFinite(values[i.key])) values[i.key] = i.default
+        continue
+      }
       const e = validateInput(i, raw[i.key] ?? '').error
       if (e) return { out: undefined, error: `${i.label}: ${e}`, values }
-      values[i.key] = Number(raw[i.key])
     }
     try {
       return { out: def.compute(values) as CalcOutput, error: undefined, values }
@@ -40,7 +44,7 @@ export function CalculatorShell({ def }: { def: CalcDef }) {
   const summaryLines = () =>
     out
       ? [
-          ...def.inputs.map((i) => `${i.label}: ${i.options ? i.options.find((o) => o.value === values[i.key])?.label : values[i.key]} ${i.unit ?? ''}`.trim()),
+          ...def.inputs.filter((i) => !i.showIf || i.showIf(values)).map((i) => `${i.label}: ${i.options ? i.options.find((o) => o.value === values[i.key])?.label : values[i.key]} ${i.unit ?? ''}`.trim()),
           `→ ${out.primary.label}: ${fmt(out.primary.value, out.primary.digits)} ${out.primary.unit}`,
           ...out.outputs.map((o) => `→ ${o.label}: ${fmt(o.value, o.digits)} ${o.unit}`),
         ]
@@ -74,7 +78,7 @@ export function CalculatorShell({ def }: { def: CalcDef }) {
           </label>
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {def.inputs.map((i) => (
+          {def.inputs.filter((i) => !i.showIf || i.showIf(values)).map((i) => (
             <InputField
               key={i.key}
               def={i}

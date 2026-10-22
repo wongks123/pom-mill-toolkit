@@ -16,6 +16,8 @@ export interface InputDef {
   options?: { value: number; label: string }[]
   /** Prefilled from Project mode when a project is active. */
   project?: ProjectKey
+  /** Shown (and validated) only when this returns true for the current values. */
+  showIf?: (v: Record<string, number>) => boolean
 }
 
 export interface OutputDef {

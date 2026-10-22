@@ -17,3 +17,9 @@ All expected values are already corrected. Tolerance is ±0.5%. Implemented in `
 | T11 | PF correction | 0.55 → 0.95 | multiplier 1.190 |
 | T12 | Pump (imperial) | 100 GPM, 50 ft, E 70% | WHP 1.52; BHP 2.16 |
 | T13 | OER | oil/bunch 24.07% | 20.58% |
+| T14 | Scraper conveyor | FFB 60 t/h, W 1000 mm, h 300 mm, φ 0.6, L 20 m, PCD 400, chain 40 kg/m, μc 0.3 | v 0.154 m/s; shaft 2.53 kW; required 3.79 kW → 4 kW; 7.37 rpm; ratio 200 |
+| T15 | Screw conveyor | Kernel 10 t/h, D 400 mm, pitch 1D, L 20 m | 12.7 rpm; shaft 1.49 kW → 2.2 kW; ratio 125 |
+| T16 | Belt conveyor | FFB 60 t/h, B 800 mm, 20° trough, 10° incline, L 20 m, pulley 500 | v 0.529 m/s; 20.2 rpm; motor 1.5 kW |
+| T17 | Chain elevator | Nut 10 t/h, 10 L buckets, pitch 0.4 m, φ 0.75, H 14 m | v 0.228 m/s; shaft 0.763 kW; motor 1.5 kW |
+
+T14–T17 are not from the pocketbook; they are hand-checked against the formulas in `src/engine/conveyor.ts` and the [REVIEW] constants in `src/data/conveyors.json`.

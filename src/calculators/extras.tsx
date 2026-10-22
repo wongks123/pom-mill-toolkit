@@ -4,6 +4,8 @@ import type { OilLossOutput } from '../engine/process'
 import type { CostOutput } from '../engine/cost'
 import profile from '../data/sterilisationProfile.json'
 import costData from '../data/productionCost.json'
+import conveyorData from '../data/conveyors.json'
+import { CONVEYOR_MATERIALS, type ConveyorOutput, type ConveyorType } from '../engine/conveyor'
 import { fmt } from '../components/format'
 import { ReviewBadge } from '../components/ReviewBadge'
 import type { CalcDef } from './types'
@@ -143,6 +145,39 @@ export function CostExtra({ out }: ExtraProps) {
           <div className="mt-1 h-2 rounded bg-stone-200"><div className="h-2 rounded bg-fruit-500" style={{ width: `${(b.rmPerT / max) * 100}%` }} /></div>
         </div>
       ))}
+    </div>
+  )
+}
+
+export function ConveyorExtra({ out }: ExtraProps) {
+  const d = out.data as { values: ConveyorOutput; material: (typeof CONVEYOR_MATERIALS)[number]; typeId: ConveyorType }
+  const v = d.values
+  const suited = CONVEYOR_MATERIALS.filter((m) => m.suits.includes(d.typeId))
+  const rows: [string, string][] = [
+    ['Motor', `${v.motorKw} kW`],
+    ['Gearbox ratio', `${v.ratioSelected} : 1${v.extraReduction > 1 ? ` + chain ${fmt(v.extraReduction, 2)} : 1` : ''}`],
+    ['Gearbox size / model', v.gearbox],
+    ['Gearbox output', `${fmt(v.outputRpm, 1)} rpm · ${fmt(v.torqueNm, 0)} N·m (design ${fmt(v.designTorqueNm, 0)} N·m)`],
+  ]
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <h3 className="font-semibold">Drive selection</h3>
+        {conveyorData.review && <ReviewBadge />}
+      </div>
+      <dl className="grid grid-cols-1 gap-x-4 gap-y-1 text-sm sm:grid-cols-[auto_1fr]">
+        {rows.map(([k, val]) => (
+          <div key={k} className="contents">
+            <dt className="text-stone-500">{k}</dt>
+            <dd className="font-medium">{val}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="text-xs text-stone-500">
+        {d.material.name}: ρ {d.material.density} t/m³, scraper μ {d.material.scraperMu}, screw λ {d.material.screwLambda}, screw fill {d.material.screwFill}, belt surcharge {d.material.surcharge}°.
+        Gearbox sizes are generic torque classes for helical-bevel units; confirm with your supplier.
+      </p>
+      <p className="text-xs text-stone-500">Usual materials for this conveyor: {suited.map((m) => m.name).join(', ')}.</p>
     </div>
   )
 }
