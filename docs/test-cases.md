@@ -22,5 +22,6 @@ All expected values are already corrected. Tolerance is ±0.5%. Implemented in `
 | T16 | Belt conveyor | FFB 60 t/h, B 800 mm, 20° trough, 10° incline, L 20 m, pulley 500 | v 0.529 m/s; 20.2 rpm; motor 1.5 kW |
 | T17 | Chain elevator | Nut 10 t/h, 10 L buckets, pitch 0.4 m, φ 0.75, H 14 m | v 0.228 m/s; shaft 0.763 kW; motor 1.5 kW |
 | T18 | Screw, standard size | Ø500 (pitch 380, flight Ø485, pipe Ø75), kernel 10 t/h, L 20 m; and at a given 30 rpm | 9.32 rpm; shaft 1.57 kW; at 30 rpm: capacity 32.2 t/h, loading 14% |
+| T19 | Scraper, drawing design | TBS/FR4 FFB conveyor: flight 1090 × 160, φ 0.6, 21T × 152.4 (PCD 1022.6), FFB 60 t/h, L 20 m; and at 6 rpm | v 0.266 m/s; 4.96 rpm; shaft 3.05 kW; at 6 rpm: 72.6 t/h, fill 50% |
 
-T14–T18 are not from the pocketbook; they are hand-checked against the formulas in `src/engine/conveyor.ts` and the [REVIEW] constants in `src/data/conveyors.json`.
+T14–T19 are not from the pocketbook; they are hand-checked against the formulas in `src/engine/conveyor.ts` and the [REVIEW] constants in `src/data/conveyors.json`.

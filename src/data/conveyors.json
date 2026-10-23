@@ -250,6 +250,14 @@
       [
         45,
         0.5
+      ],
+      [
+        55,
+        0.4
+      ],
+      [
+        60,
+        0.35
       ]
     ],
     "screw": [
@@ -578,5 +586,135 @@
   "shaftAllowableShearMPa": {
     "value": 40,
     "note": "[REVIEW] Allowable torsional shear for a keyed mild-steel drive shaft (typical design value)."
+  },
+  "scraperDesigns": {
+    "source": "iTake Solutions scraper conveyor drawings for TBS Palm Oil Mill (2018): TBS/FR4, TS2, TS4b, TS7, TS8, PS4, PS5, DS3, BH2. All use 152.4 mm pitch roller chain, two strands.",
+    "chainPitchMm": 152.4,
+    "review": true,
+    "reviewNote": "[REVIEW] Flight height is read as the bottom-plate-to-chain-line height on each section (160/170 mm), or 150 mm for the 150×50 hollow-section scraper bars. The USB conveyor flight width is estimated from the 900 mm trough.",
+    "designs": [
+      {
+        "id": "ffb",
+        "name": "FFB conveyor",
+        "drawing": "TBS/FR4",
+        "insideMm": 1200,
+        "flightWidthMm": 1090,
+        "flightHeightMm": 160,
+        "sprocketTeeth": 21,
+        "shaftMm": 125,
+        "flightEveryLinks": 8,
+        "material": "ffb",
+        "inclineDeg": 0,
+        "note": "Ø75 SCH40 pipe flights every 8 links"
+      },
+      {
+        "id": "sfb-incl",
+        "name": "Inclined SFB conveyor (1200)",
+        "drawing": "TBS/TS2",
+        "insideMm": 1200,
+        "flightWidthMm": 1011,
+        "flightHeightMm": 170,
+        "sprocketTeeth": 16,
+        "shaftMm": 125,
+        "flightEveryLinks": 6,
+        "material": "sfb",
+        "inclineDeg": 30,
+        "note": "Ø75 pipe flights every 6 links, 6 mm plate every 12 links"
+      },
+      {
+        "id": "sfb-horz",
+        "name": "Horizontal SFB conveyor (1200)",
+        "drawing": "TBS/TS4b",
+        "insideMm": 1200,
+        "flightWidthMm": 1011,
+        "flightHeightMm": 170,
+        "sprocketTeeth": 12,
+        "shaftMm": 125,
+        "flightEveryLinks": 6,
+        "material": "sfb",
+        "inclineDeg": 0,
+        "note": "12T drive / 16T take-up sprocket"
+      },
+      {
+        "id": "sfb-800",
+        "name": "Horizontal SFB conveyor (800)",
+        "drawing": "TBS/DS3",
+        "insideMm": 800,
+        "flightWidthMm": 610,
+        "flightHeightMm": 170,
+        "sprocketTeeth": 12,
+        "shaftMm": 75,
+        "flightEveryLinks": 6,
+        "material": "sfb",
+        "inclineDeg": 0
+      },
+      {
+        "id": "usb",
+        "name": "USB scraper bar conveyor (to thresher)",
+        "drawing": "TBS/TS7",
+        "insideMm": 900,
+        "flightWidthMm": 800,
+        "flightHeightMm": 150,
+        "sprocketTeeth": 8,
+        "shaftMm": 100,
+        "flightEveryLinks": 6,
+        "material": "sfb",
+        "inclineDeg": 55,
+        "note": "150×50×4.5 hollow-section scraper every 6th link"
+      },
+      {
+        "id": "efb",
+        "name": "Empty bunch conveyor",
+        "drawing": "TBS/TS8",
+        "insideMm": 800,
+        "flightWidthMm": 584,
+        "flightHeightMm": 160,
+        "sprocketTeeth": 10,
+        "shaftMm": 75,
+        "flightEveryLinks": 6,
+        "material": "efb",
+        "inclineDeg": 30
+      },
+      {
+        "id": "fruit",
+        "name": "Inclined fruit conveyor",
+        "drawing": "TBS/PS4",
+        "insideMm": 800,
+        "flightWidthMm": 584,
+        "flightHeightMm": 160,
+        "sprocketTeeth": 10,
+        "shaftMm": 75,
+        "flightEveryLinks": 6,
+        "material": "fruit",
+        "inclineDeg": 30
+      },
+      {
+        "id": "cake",
+        "name": "Cake breaker conveyor",
+        "drawing": "TBS/PS5",
+        "insideMm": 800,
+        "flightWidthMm": 610,
+        "flightHeightMm": 170,
+        "sprocketTeeth": 12,
+        "shaftMm": 75,
+        "flightEveryLinks": 6,
+        "material": "cake",
+        "inclineDeg": 0
+      },
+      {
+        "id": "boiler",
+        "name": "Boiler fuel distributing conveyor",
+        "drawing": "TBS/BH2",
+        "insideMm": 800,
+        "flightWidthMm": 704,
+        "flightHeightMm": 150,
+        "sprocketTeeth": 8,
+        "shaftMm": 100,
+        "flightEveryLinks": 4,
+        "material": "fibre",
+        "inclineDeg": 0,
+        "note": "150×50×4.5 scraper plate every 4th link; 36,000 lb chain"
+      }
+    ]
   }
 }

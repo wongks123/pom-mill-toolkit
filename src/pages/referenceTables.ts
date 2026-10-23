@@ -16,6 +16,11 @@ import conveyors from '../data/conveyors.json'
 export const TABLES: Table[] = [
   { id: 'bulkDensities', ...bulkDensities },
   {
+    id: 'scraperDesigns', title: 'Scraper bar conveyor designs', source: `${conveyors.scraperDesigns.source} ${conveyors.scraperDesigns.reviewNote}`, review: conveyors.scraperDesigns.review,
+    columns: ['Conveyor', 'Drawing', 'Inside width (mm)', 'Flight W × H (mm)', 'Drive sprocket (152.4 pitch)', 'Shaft Ø (mm)', 'Flight every', 'Notes'],
+    rows: conveyors.scraperDesigns.designs.map((z) => [z.name, z.drawing, z.insideMm, `${z.flightWidthMm} × ${z.flightHeightMm}`, `${z.sprocketTeeth}T (PCD ${(152.4 / Math.sin(Math.PI / z.sprocketTeeth)).toFixed(0)})`, z.shaftMm, `${z.flightEveryLinks} links`, z.note ?? '']),
+  },
+  {
     id: 'screwSizes', title: 'Standard screw conveyor sizes', source: conveyors.screwSizes.source,
     columns: ['Ø conveyor (mm)', 'Pitch (mm)', 'Flight Ø D (mm)', 'Black pipe Ø N (mm)', 'Shaft Ø J/K (mm)', 'Trough width A (mm)'],
     rows: conveyors.screwSizes.sizes.map((z) => [z.size, z.pitchMm, z.flightMm, z.pipeMm, z.shaftMm, z.troughMm]),

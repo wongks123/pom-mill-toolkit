@@ -9,7 +9,7 @@ import { motorAmps, pfCorrection, pfMultiplier } from '../electrical'
 import { pumpPowerImperial } from '../pumping'
 import { massBalance, oerFromBunch, oilLoss } from '../process'
 import { convert, convertTemperature } from '../units'
-import { conveyorSizing } from '../conveyor'
+import { conveyorSizing, sprocketPcd } from '../conveyor'
 import { buildBackup, parseBackup } from '../../backup/backup'
 import { InputError } from '../types'
 
@@ -188,15 +188,32 @@ describe('T18 Screw conveyor from standard size (TBS/MIS3)', () => {
     near(r.shaftKw, 1.575)
   })
   it('Ø500 at a given 30 rpm – capacity and loading', () => {
-    const r = conveyorSizing({ ...drive, type: 'screw', materialId: 'kernel', capacityTph: 10, ...size500, screwRpm: 30 })
+    const r = conveyorSizing({ ...drive, type: 'screw', materialId: 'kernel', capacityTph: 10, ...size500, fixedRpm: 30 })
     near(r.values.shaftRpm, 30)
     near(r.values.maxCapacityTph ?? 0, 32.19)
     near(r.values.loadingPct ?? 0, 13.98)
     expect(r.warnings.some((w) => w.includes('overfill'))).toBe(false)
   })
   it('warns when the given RPM is too slow for the capacity', () => {
-    const r = conveyorSizing({ ...drive, type: 'screw', materialId: 'kernel', capacityTph: 40, ...size500, screwRpm: 30 })
+    const r = conveyorSizing({ ...drive, type: 'screw', materialId: 'kernel', capacityTph: 40, ...size500, fixedRpm: 30 })
     expect(r.warnings.some((w) => w.includes('overfill'))).toBe(true)
+  })
+})
+
+describe('T19 Scraper conveyor from drawing design (TBS/FR4 FFB conveyor)', () => {
+  const ffb = { ...drive, type: 'scraper' as const, materialId: 'ffb', capacityTph: 60, troughWidthMm: 1090, flightHeightMm: 160, fill: 0.6, sprocketPcdMm: sprocketPcd(152.4, 21), chainKgPerM: 40, chainMu: 0.3, shaftDiaMm: 125 }
+  it('21T × 152.4 sprocket PCD', () => near(sprocketPcd(152.4, 21), 1022.6))
+  it('60 t/h FFB – solve speed', () => {
+    const r = conveyorSizing(ffb).values
+    near(r.speedMs, 0.2655)
+    near(r.shaftRpm, 4.958)
+    near(r.shaftKw, 3.049)
+  })
+  it('at a given 6 rpm – capacity and fill', () => {
+    const r = conveyorSizing({ ...ffb, fixedRpm: 6 }).values
+    near(r.speedMs, 0.3213)
+    near(r.maxCapacityTph ?? 0, 72.61)
+    near(r.loadingPct ?? 0, 49.58)
   })
 })
 
