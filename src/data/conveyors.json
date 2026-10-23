@@ -3,50 +3,580 @@
   "source": "[REVIEW] FFB bulk density 600 kg/m³ from the iTake conveyor sizing sheet. Other values are typical mill-practice and CEMA / DIN 15262 / ISO 5048 figures, not from the pocketbook. Check against site data before use.",
   "review": true,
   "materials": [
-    { "id": "ffb", "name": "FFB", "density": 0.6, "scraperMu": 0.55, "screwLambda": 4.0, "screwFill": 0.15, "surcharge": 20, "maxBeltIncline": 18, "suits": ["scraper", "belt", "elevator"] },
-    { "id": "sfb", "name": "SFB (sterilised fruit bunch)", "density": 0.45, "scraperMu": 0.6, "screwLambda": 4.0, "screwFill": 0.15, "surcharge": 20, "maxBeltIncline": 18, "suits": ["scraper", "belt", "elevator"] },
-    { "id": "efb", "name": "EFB", "density": 0.25, "scraperMu": 0.6, "screwLambda": 3.2, "screwFill": 0.3, "surcharge": 20, "maxBeltIncline": 20, "suits": ["scraper", "belt", "elevator", "screw"] },
-    { "id": "fruit", "name": "Loose fruit", "density": 0.65, "scraperMu": 0.5, "screwLambda": 2.5, "screwFill": 0.3, "surcharge": 15, "maxBeltIncline": 15, "suits": ["scraper", "belt", "elevator", "screw"] },
-    { "id": "cake", "name": "Pressed cake", "density": 0.4, "scraperMu": 0.6, "screwLambda": 4.0, "screwFill": 0.3, "surcharge": 20, "maxBeltIncline": 20, "suits": ["screw", "scraper", "belt"] },
-    { "id": "fibre", "name": "Fibre", "density": 0.2, "scraperMu": 0.6, "screwLambda": 3.2, "screwFill": 0.3, "surcharge": 25, "maxBeltIncline": 22, "suits": ["scraper", "screw", "belt"] },
-    { "id": "mixture", "name": "Broken (cracked) mixture", "density": 0.6, "scraperMu": 0.5, "screwLambda": 2.5, "screwFill": 0.3, "surcharge": 15, "maxBeltIncline": 15, "suits": ["screw", "elevator", "belt"] },
-    { "id": "nut", "name": "Nut", "density": 0.65, "scraperMu": 0.45, "screwLambda": 2.5, "screwFill": 0.3, "surcharge": 10, "maxBeltIncline": 12, "suits": ["screw", "elevator", "belt"] },
-    { "id": "kernel", "name": "Kernel", "density": 0.58, "scraperMu": 0.45, "screwLambda": 2.0, "screwFill": 0.45, "surcharge": 10, "maxBeltIncline": 12, "suits": ["screw", "elevator", "belt"] },
-    { "id": "shell", "name": "Shell", "density": 0.6, "scraperMu": 0.55, "screwLambda": 4.0, "screwFill": 0.15, "surcharge": 15, "maxBeltIncline": 18, "suits": ["screw", "scraper", "elevator", "belt"] },
-    { "id": "ash", "name": "Ash", "density": 0.6, "scraperMu": 0.6, "screwLambda": 4.0, "screwFill": 0.15, "surcharge": 20, "maxBeltIncline": 20, "suits": ["screw", "scraper"] },
-    { "id": "decanter", "name": "Decanter cake (solids)", "density": 0.85, "scraperMu": 0.7, "screwLambda": 4.0, "screwFill": 0.3, "surcharge": 25, "maxBeltIncline": 18, "suits": ["screw", "scraper", "belt"] }
+    {
+      "id": "ffb",
+      "name": "FFB",
+      "density": 0.6,
+      "scraperMu": 0.55,
+      "screwLambda": 4.0,
+      "screwFill": 0.15,
+      "surcharge": 20,
+      "maxBeltIncline": 18,
+      "suits": [
+        "scraper",
+        "belt",
+        "elevator"
+      ]
+    },
+    {
+      "id": "sfb",
+      "name": "SFB (sterilised fruit bunch)",
+      "density": 0.45,
+      "scraperMu": 0.6,
+      "screwLambda": 4.0,
+      "screwFill": 0.15,
+      "surcharge": 20,
+      "maxBeltIncline": 18,
+      "suits": [
+        "scraper",
+        "belt",
+        "elevator"
+      ]
+    },
+    {
+      "id": "efb",
+      "name": "EFB",
+      "density": 0.25,
+      "scraperMu": 0.6,
+      "screwLambda": 3.2,
+      "screwFill": 0.3,
+      "surcharge": 20,
+      "maxBeltIncline": 20,
+      "suits": [
+        "scraper",
+        "belt",
+        "elevator",
+        "screw"
+      ]
+    },
+    {
+      "id": "fruit",
+      "name": "Loose fruit",
+      "density": 0.65,
+      "scraperMu": 0.5,
+      "screwLambda": 2.5,
+      "screwFill": 0.3,
+      "surcharge": 15,
+      "maxBeltIncline": 15,
+      "suits": [
+        "scraper",
+        "belt",
+        "elevator",
+        "screw"
+      ]
+    },
+    {
+      "id": "cake",
+      "name": "Pressed cake",
+      "density": 0.4,
+      "scraperMu": 0.6,
+      "screwLambda": 4.0,
+      "screwFill": 0.3,
+      "surcharge": 20,
+      "maxBeltIncline": 20,
+      "suits": [
+        "screw",
+        "scraper",
+        "belt"
+      ]
+    },
+    {
+      "id": "fibre",
+      "name": "Fibre",
+      "density": 0.2,
+      "scraperMu": 0.6,
+      "screwLambda": 3.2,
+      "screwFill": 0.3,
+      "surcharge": 25,
+      "maxBeltIncline": 22,
+      "suits": [
+        "scraper",
+        "screw",
+        "belt"
+      ]
+    },
+    {
+      "id": "mixture",
+      "name": "Broken (cracked) mixture",
+      "density": 0.6,
+      "scraperMu": 0.5,
+      "screwLambda": 2.5,
+      "screwFill": 0.3,
+      "surcharge": 15,
+      "maxBeltIncline": 15,
+      "suits": [
+        "screw",
+        "elevator",
+        "belt"
+      ]
+    },
+    {
+      "id": "nut",
+      "name": "Nut",
+      "density": 0.65,
+      "scraperMu": 0.45,
+      "screwLambda": 2.5,
+      "screwFill": 0.3,
+      "surcharge": 10,
+      "maxBeltIncline": 12,
+      "suits": [
+        "screw",
+        "elevator",
+        "belt"
+      ]
+    },
+    {
+      "id": "kernel",
+      "name": "Kernel",
+      "density": 0.58,
+      "scraperMu": 0.45,
+      "screwLambda": 2.0,
+      "screwFill": 0.45,
+      "surcharge": 10,
+      "maxBeltIncline": 12,
+      "suits": [
+        "screw",
+        "elevator",
+        "belt"
+      ]
+    },
+    {
+      "id": "shell",
+      "name": "Shell",
+      "density": 0.6,
+      "scraperMu": 0.55,
+      "screwLambda": 4.0,
+      "screwFill": 0.15,
+      "surcharge": 15,
+      "maxBeltIncline": 18,
+      "suits": [
+        "screw",
+        "scraper",
+        "elevator",
+        "belt"
+      ]
+    },
+    {
+      "id": "ash",
+      "name": "Ash",
+      "density": 0.6,
+      "scraperMu": 0.6,
+      "screwLambda": 4.0,
+      "screwFill": 0.15,
+      "surcharge": 20,
+      "maxBeltIncline": 20,
+      "suits": [
+        "screw",
+        "scraper"
+      ]
+    },
+    {
+      "id": "decanter",
+      "name": "Decanter cake (solids)",
+      "density": 0.85,
+      "scraperMu": 0.7,
+      "screwLambda": 4.0,
+      "screwFill": 0.3,
+      "surcharge": 25,
+      "maxBeltIncline": 18,
+      "suits": [
+        "screw",
+        "scraper",
+        "belt"
+      ]
+    }
   ],
   "types": [
-    { "id": "scraper", "name": "Scraper bar conveyor", "efficiency": 0.8, "speed": [0.1, 0.6] },
-    { "id": "screw", "name": "Screw / ribbon conveyor", "efficiency": 0.85, "rpm": [10, 120] },
-    { "id": "belt", "name": "Belt conveyor", "efficiency": 0.9, "speed": [0.5, 2.5] },
-    { "id": "elevator", "name": "Chain (bucket) elevator", "efficiency": 0.8, "speed": [0.15, 0.6] }
+    {
+      "id": "scraper",
+      "name": "Scraper bar conveyor",
+      "efficiency": 0.8,
+      "speed": [
+        0.1,
+        0.6
+      ]
+    },
+    {
+      "id": "screw",
+      "name": "Screw / ribbon conveyor",
+      "efficiency": 0.85,
+      "rpm": [
+        10,
+        120
+      ]
+    },
+    {
+      "id": "belt",
+      "name": "Belt conveyor",
+      "efficiency": 0.9,
+      "speed": [
+        0.5,
+        2.5
+      ]
+    },
+    {
+      "id": "elevator",
+      "name": "Chain (bucket) elevator",
+      "efficiency": 0.8,
+      "speed": [
+        0.15,
+        0.6
+      ]
+    }
   ],
   "inclineFactor": {
     "note": "Capacity factor k against incline (°). Linear interpolation between points.",
-    "scraper": [[0, 1], [10, 0.9], [20, 0.8], [30, 0.7], [40, 0.55], [45, 0.5]],
-    "screw": [[0, 1], [5, 0.9], [10, 0.8], [15, 0.7], [20, 0.6], [25, 0.5], [30, 0.4]],
-    "belt": [[0, 1], [5, 0.99], [10, 0.95], [15, 0.89], [18, 0.85], [20, 0.81], [25, 0.7]]
+    "scraper": [
+      [
+        0,
+        1
+      ],
+      [
+        10,
+        0.9
+      ],
+      [
+        20,
+        0.8
+      ],
+      [
+        30,
+        0.7
+      ],
+      [
+        40,
+        0.55
+      ],
+      [
+        45,
+        0.5
+      ]
+    ],
+    "screw": [
+      [
+        0,
+        1
+      ],
+      [
+        5,
+        0.9
+      ],
+      [
+        10,
+        0.8
+      ],
+      [
+        15,
+        0.7
+      ],
+      [
+        20,
+        0.6
+      ],
+      [
+        25,
+        0.5
+      ],
+      [
+        30,
+        0.4
+      ]
+    ],
+    "belt": [
+      [
+        0,
+        1
+      ],
+      [
+        5,
+        0.99
+      ],
+      [
+        10,
+        0.95
+      ],
+      [
+        15,
+        0.89
+      ],
+      [
+        18,
+        0.85
+      ],
+      [
+        20,
+        0.81
+      ],
+      [
+        25,
+        0.7
+      ]
+    ]
   },
   "beltLengthCoefficientC": {
     "note": "ISO 5048 / DIN 22101 secondary-resistance coefficient C against conveyor length (m).",
-    "points": [[3, 9.0], [4, 7.6], [5, 6.6], [6, 5.9], [8, 5.1], [10, 4.5], [13, 4.0], [16, 3.6], [20, 3.2], [25, 2.9], [32, 2.6], [40, 2.4], [50, 2.2], [63, 2.0], [80, 1.92], [90, 1.86], [100, 1.78], [120, 1.7], [140, 1.63], [160, 1.56], [180, 1.5], [200, 1.45], [250, 1.38], [300, 1.31]]
+    "points": [
+      [
+        3,
+        9.0
+      ],
+      [
+        4,
+        7.6
+      ],
+      [
+        5,
+        6.6
+      ],
+      [
+        6,
+        5.9
+      ],
+      [
+        8,
+        5.1
+      ],
+      [
+        10,
+        4.5
+      ],
+      [
+        13,
+        4.0
+      ],
+      [
+        16,
+        3.6
+      ],
+      [
+        20,
+        3.2
+      ],
+      [
+        25,
+        2.9
+      ],
+      [
+        32,
+        2.6
+      ],
+      [
+        40,
+        2.4
+      ],
+      [
+        50,
+        2.2
+      ],
+      [
+        63,
+        2.0
+      ],
+      [
+        80,
+        1.92
+      ],
+      [
+        90,
+        1.86
+      ],
+      [
+        100,
+        1.78
+      ],
+      [
+        120,
+        1.7
+      ],
+      [
+        140,
+        1.63
+      ],
+      [
+        160,
+        1.56
+      ],
+      [
+        180,
+        1.5
+      ],
+      [
+        200,
+        1.45
+      ],
+      [
+        250,
+        1.38
+      ],
+      [
+        300,
+        1.31
+      ]
+    ]
   },
   "beltFriction": 0.02,
-  "motorKw": [0.37, 0.55, 0.75, 1.1, 1.5, 2.2, 3, 4, 5.5, 7.5, 11, 15, 18.5, 22, 30, 37, 45, 55, 75, 90, 110, 132, 160],
-  "gearRatios": [5, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250],
+  "motorKw": [
+    0.37,
+    0.55,
+    0.75,
+    1.1,
+    1.5,
+    2.2,
+    3,
+    4,
+    5.5,
+    7.5,
+    11,
+    15,
+    18.5,
+    22,
+    30,
+    37,
+    45,
+    55,
+    75,
+    90,
+    110,
+    132,
+    160
+  ],
+  "gearRatios": [
+    5,
+    6.3,
+    8,
+    10,
+    12.5,
+    16,
+    20,
+    25,
+    31.5,
+    40,
+    50,
+    63,
+    80,
+    100,
+    125,
+    160,
+    200,
+    250
+  ],
   "gearboxSizes": [
-    { "size": "Size 1", "torqueNm": 200, "example": "K37 class" },
-    { "size": "Size 2", "torqueNm": 400, "example": "K47 class" },
-    { "size": "Size 3", "torqueNm": 600, "example": "K57 class" },
-    { "size": "Size 4", "torqueNm": 820, "example": "K67 class" },
-    { "size": "Size 5", "torqueNm": 1550, "example": "K77 class" },
-    { "size": "Size 6", "torqueNm": 2700, "example": "K87 class" },
-    { "size": "Size 7", "torqueNm": 4300, "example": "K97 class" },
-    { "size": "Size 8", "torqueNm": 8000, "example": "K107 class" },
-    { "size": "Size 9", "torqueNm": 13000, "example": "K127 class" },
-    { "size": "Size 10", "torqueNm": 18000, "example": "K157 class" },
-    { "size": "Size 11", "torqueNm": 32000, "example": "K167 class" },
-    { "size": "Size 12", "torqueNm": 50000, "example": "K187 class" }
-  ]
+    {
+      "size": "Size 1",
+      "torqueNm": 200,
+      "example": "K37 class"
+    },
+    {
+      "size": "Size 2",
+      "torqueNm": 400,
+      "example": "K47 class"
+    },
+    {
+      "size": "Size 3",
+      "torqueNm": 600,
+      "example": "K57 class"
+    },
+    {
+      "size": "Size 4",
+      "torqueNm": 820,
+      "example": "K67 class"
+    },
+    {
+      "size": "Size 5",
+      "torqueNm": 1550,
+      "example": "K77 class"
+    },
+    {
+      "size": "Size 6",
+      "torqueNm": 2700,
+      "example": "K87 class"
+    },
+    {
+      "size": "Size 7",
+      "torqueNm": 4300,
+      "example": "K97 class"
+    },
+    {
+      "size": "Size 8",
+      "torqueNm": 8000,
+      "example": "K107 class"
+    },
+    {
+      "size": "Size 9",
+      "torqueNm": 13000,
+      "example": "K127 class"
+    },
+    {
+      "size": "Size 10",
+      "torqueNm": 18000,
+      "example": "K157 class"
+    },
+    {
+      "size": "Size 11",
+      "torqueNm": 32000,
+      "example": "K167 class"
+    },
+    {
+      "size": "Size 12",
+      "torqueNm": 50000,
+      "example": "K187 class"
+    }
+  ],
+  "screwSizes": {
+    "source": "iTake Solutions drawing TBS/MIS3 'Details of conveyor' (TBS Palm Oil Mill, 2018): Ø conveyor, pitch, flight D, black pipe ØN, shaft ØJ/ØK, trough width A.",
+    "sizes": [
+      {
+        "size": 300,
+        "pitchMm": 240,
+        "flightMm": 285,
+        "pipeMm": 65,
+        "shaftMm": 50,
+        "troughMm": 439
+      },
+      {
+        "size": 380,
+        "pitchMm": 300,
+        "flightMm": 365,
+        "pipeMm": 65,
+        "shaftMm": 50,
+        "troughMm": 519
+      },
+      {
+        "size": 500,
+        "pitchMm": 380,
+        "flightMm": 485,
+        "pipeMm": 75,
+        "shaftMm": 65,
+        "troughMm": 642
+      },
+      {
+        "size": 600,
+        "pitchMm": 450,
+        "flightMm": 585,
+        "pipeMm": 75,
+        "shaftMm": 65,
+        "troughMm": 742
+      },
+      {
+        "size": 750,
+        "pitchMm": 500,
+        "flightMm": 735,
+        "pipeMm": 100,
+        "shaftMm": 85,
+        "troughMm": 892
+      },
+      {
+        "size": 900,
+        "pitchMm": 550,
+        "flightMm": 866,
+        "pipeMm": 150,
+        "shaftMm": 100,
+        "troughMm": 1066
+      }
+    ]
+  },
+  "shaftAllowableShearMPa": {
+    "value": 40,
+    "note": "[REVIEW] Allowable torsional shear for a keyed mild-steel drive shaft (typical design value)."
+  }
 }

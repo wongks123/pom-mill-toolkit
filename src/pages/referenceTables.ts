@@ -16,6 +16,11 @@ import conveyors from '../data/conveyors.json'
 export const TABLES: Table[] = [
   { id: 'bulkDensities', ...bulkDensities },
   {
+    id: 'screwSizes', title: 'Standard screw conveyor sizes', source: conveyors.screwSizes.source,
+    columns: ['Ø conveyor (mm)', 'Pitch (mm)', 'Flight Ø D (mm)', 'Black pipe Ø N (mm)', 'Shaft Ø J/K (mm)', 'Trough width A (mm)'],
+    rows: conveyors.screwSizes.sizes.map((z) => [z.size, z.pitchMm, z.flightMm, z.pipeMm, z.shaftMm, z.troughMm]),
+  },
+  {
     id: 'conveyorMaterials', title: conveyors.title, source: conveyors.source, review: conveyors.review,
     columns: ['Material', 'Bulk density (t/m³)', 'Scraper μ', 'Screw λ', 'Screw fill φ', 'Belt surcharge (°)', 'Max belt incline (°)', 'Usual conveyors'],
     rows: conveyors.materials.map((m) => [m.name, m.density, m.scraperMu, m.screwLambda, m.screwFill, m.surcharge, m.maxBeltIncline, m.suits.map((t) => conveyors.types.find((x) => x.id === t)?.name ?? t).join(', ')]),

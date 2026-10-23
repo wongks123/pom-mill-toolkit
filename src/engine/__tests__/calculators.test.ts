@@ -180,6 +180,26 @@ describe('T17 Chain (bucket) elevator', () => {
   })
 })
 
+describe('T18 Screw conveyor from standard size (TBS/MIS3)', () => {
+  const size500 = { screwDiameterMm: 485, screwPitchMm: 380, pipeMm: 75, shaftDiaMm: 65 }
+  it('Ø500: kernel 10 t/h, L 20 – solve RPM', () => {
+    const r = conveyorSizing({ ...drive, type: 'screw', materialId: 'kernel', capacityTph: 10, ...size500 }).values
+    near(r.shaftRpm, 9.319)
+    near(r.shaftKw, 1.575)
+  })
+  it('Ø500 at a given 30 rpm – capacity and loading', () => {
+    const r = conveyorSizing({ ...drive, type: 'screw', materialId: 'kernel', capacityTph: 10, ...size500, screwRpm: 30 })
+    near(r.values.shaftRpm, 30)
+    near(r.values.maxCapacityTph ?? 0, 32.19)
+    near(r.values.loadingPct ?? 0, 13.98)
+    expect(r.warnings.some((w) => w.includes('overfill'))).toBe(false)
+  })
+  it('warns when the given RPM is too slow for the capacity', () => {
+    const r = conveyorSizing({ ...drive, type: 'screw', materialId: 'kernel', capacityTph: 40, ...size500, screwRpm: 30 })
+    expect(r.warnings.some((w) => w.includes('overfill'))).toBe(true)
+  })
+})
+
 describe('Validation and helpers', () => {
   it('rejects zero divisors and negatives', () => {
     expect(() => sterilisationCycle({ n: 3, capacityT: 27, throughputTph: 0, blowOffMin: 2 })).toThrow(InputError)

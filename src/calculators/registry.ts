@@ -8,13 +8,14 @@ import { motorAmps, motorSpeed, pfCorrection, startingCurrent } from '../engine/
 import { GallonType, pipeVelocity, pumpEfficiency, pumpPowerImperial, pumpPowerSI } from '../engine/pumping'
 import { massBalance, oerFromBunch, oerKerFromProduction, oilLoss, pressCakeCheck } from '../engine/process'
 import { productionCost } from '../engine/cost'
-import { CONVEYOR_MATERIALS, CONVEYOR_TYPES, conveyorSizing } from '../engine/conveyor'
+import { CONVEYOR_MATERIALS, CONVEYOR_TYPES, SCREW_SIZES, conveyorSizing } from '../engine/conveyor'
 import oilLossData from '../data/oilLosses.json'
 import pressCakeData from '../data/pressCakeTargets.json'
 import startingMethods from '../data/startingMethods.json'
 import type { CalcDef, InputDef } from './types'
 import { ConveyorExtra, CostExtra, OilLossExtra, PfTableExtra, SterilisationExtra } from './extras'
 
+const SCREW_CUSTOM = 99
 const capacity: InputDef = { key: 'capacityTph', label: 'Mill capacity', unit: 't FFB/h', default: 45, typical: [10, 120], project: 'capacityTph' }
 const gallonOpt: InputDef = { key: 'gallon', label: 'Gallon type', default: 0, options: [{ value: 0, label: 'Imperial (constant 3,300)' }, { value: 1, label: 'US (constant 3,960)' }] }
 const gallon = (v: number): GallonType => (v === 1 ? 'us' : 'imperial')
@@ -298,8 +299,19 @@ export const CALCULATORS: CalcDef[] = [
       { key: 'troughW', label: 'Trough width', unit: 'mm', default: 1000, typical: [300, 1500], showIf: (v) => v.type === 0 },
       { key: 'flightH', label: 'Flight height', unit: 'mm', default: 300, typical: [75, 400], showIf: (v) => v.type === 0 },
       // Screw conveyor
-      { key: 'screwD', label: 'Screw diameter', unit: 'mm', default: 400, typical: [150, 800], showIf: (v) => v.type === 1 },
-      { key: 'pitchRatio', label: 'Pitch / diameter', default: 1, typical: [0.5, 1.5], hint: 'Standard pitch = 1', showIf: (v) => v.type === 1 },
+      {
+        key: 'screwSize', label: 'Screw conveyor size', default: 2, showIf: (v) => v.type === 1,
+        options: [
+          ...SCREW_SIZES.map((z, k) => ({ value: k, label: `Ø${z.size} – pitch ${z.pitchMm}` })),
+          { value: SCREW_CUSTOM, label: 'Custom size (enter below)' },
+        ],
+      },
+      { key: 'screwD', label: 'Flight diameter', unit: 'mm', default: 485, typical: [150, 1000], showIf: (v) => v.type === 1 && v.screwSize === SCREW_CUSTOM },
+      { key: 'screwPitch', label: 'Pitch', unit: 'mm', default: 380, typical: [100, 800], showIf: (v) => v.type === 1 && v.screwSize === SCREW_CUSTOM },
+      { key: 'pipeD', label: 'Centre pipe OD', unit: 'mm', default: 75, allowZero: true, typical: [0, 200], showIf: (v) => v.type === 1 && v.screwSize === SCREW_CUSTOM },
+      { key: 'shaftD', label: 'Drive shaft diameter', unit: 'mm', default: 65, typical: [30, 150], showIf: (v) => v.type === 1 && v.screwSize === SCREW_CUSTOM },
+      { key: 'rpmMode', label: 'Screw speed', default: 0, options: [{ value: 0, label: 'Calculate the RPM needed' }, { value: 1, label: 'I will enter the RPM' }], showIf: (v) => v.type === 1 },
+      { key: 'screwRpm', label: 'Screw RPM', unit: 'rpm', default: 40, typical: [10, 120], showIf: (v) => v.type === 1 && v.rpmMode === 1 },
       // Belt conveyor
       { key: 'beltW', label: 'Belt width', unit: 'mm', default: 800, typical: [400, 1400], showIf: (v) => v.type === 2 },
       { key: 'trough', label: 'Troughing angle', default: 20, options: [0, 20, 30, 35, 45].map((a) => ({ value: a, label: a === 0 ? 'Flat belt' : `${a}° three-roll` })), showIf: (v) => v.type === 2 },
@@ -323,11 +335,13 @@ export const CALCULATORS: CalcDef[] = [
     compute: (v) => {
       const type = CONVEYOR_TYPES[v.type]
       const material = CONVEYOR_MATERIALS[v.material]
+      const size = v.screwSize === SCREW_CUSTOM ? undefined : SCREW_SIZES[v.screwSize]
       const r = conveyorSizing({
         type: type.id, materialId: material.id, capacityTph: v.Q, lengthM: v.L, inclineDeg: v.type === 3 ? 90 : v.incline, densityOverride: v.rho,
         motorRpm: v.motorRpm, powerMargin: v.margin, gearServiceFactor: v.gearSF,
         troughWidthMm: v.troughW, flightHeightMm: v.flightH, fill: v.fill, sprocketPcdMm: v.pcd, chainKgPerM: v.chainKg, chainMu: v.chainMu,
-        screwDiameterMm: v.screwD, pitchRatio: v.pitchRatio,
+        screwDiameterMm: size?.flightMm ?? v.screwD, screwPitchMm: size?.pitchMm ?? v.screwPitch, pipeMm: size?.pipeMm ?? v.pipeD, shaftDiaMm: size?.shaftMm ?? v.shaftD,
+        screwRpm: v.rpmMode === 1 ? v.screwRpm : undefined,
         beltWidthMm: v.beltW, troughDeg: v.trough, pulleyMm: v.pulleyD, beltKgPerM: v.beltKg, idlerKgPerM: v.idlerKg,
         bucketL: v.bucketL, bucketPitchM: v.bucketP, liftM: v.liftM,
       })
@@ -337,6 +351,10 @@ export const CALCULATORS: CalcDef[] = [
         outputs: [
           { label: v.type === 1 ? 'Screw speed' : 'Conveyor speed', value: v.type === 1 ? x.shaftRpm : x.speedMs, unit: v.type === 1 ? 'rpm' : 'm/s', digits: 2 },
           { label: 'Required conveyor RPM', value: x.shaftRpm, unit: 'rpm', digits: 1 },
+          ...(x.maxCapacityTph !== undefined ? [
+            { label: 'Capacity at this RPM', value: x.maxCapacityTph, unit: 't/h', digits: 1 },
+            { label: 'Actual trough loading', value: x.loadingPct ?? 0, unit: '%', digits: 0 },
+          ] : []),
           { label: 'Shaft power', value: x.shaftKw, unit: 'kW', digits: 2 },
           { label: 'Selected motor', value: x.motorKw, unit: 'kW', digits: 2 },
           { label: 'Selected gearbox ratio', value: x.ratioSelected, unit: ': 1', digits: 1 },

@@ -5,6 +5,7 @@ export type ConveyorType = 'scraper' | 'screw' | 'belt' | 'elevator'
 
 export const CONVEYOR_TYPES = data.types as { id: ConveyorType; name: string; efficiency: number; speed?: number[]; rpm?: number[] }[]
 export const CONVEYOR_MATERIALS = data.materials
+export const SCREW_SIZES = data.screwSizes.sizes
 
 export interface ConveyorInput {
   type: ConveyorType
@@ -26,9 +27,15 @@ export interface ConveyorInput {
   sprocketPcdMm?: number
   chainKgPerM?: number
   chainMu?: number
-  // Screw conveyor
+  // Screw conveyor: flight diameter, pitch (mm, or pitch ratio × D), centre pipe OD
   screwDiameterMm?: number
+  screwPitchMm?: number
   pitchRatio?: number
+  pipeMm?: number
+  /** Drive shaft diameter (mm), for the torsion check. */
+  shaftDiaMm?: number
+  /** Fixed screw speed (rpm). When given, capacity is checked instead of solving for speed. */
+  screwRpm?: number
   // Belt conveyor
   beltWidthMm?: number
   troughDeg?: number
@@ -48,6 +55,9 @@ export interface ConveyorOutput {
   shaftKw: number
   requiredKw: number
   motorKw: number
+  /** Screw only: maximum capacity at the screw speed, and trough loading actually reached. */
+  maxCapacityTph?: number
+  loadingPct?: number
   ratioRequired: number
   ratioSelected: number
   extraReduction: number
@@ -100,6 +110,7 @@ export function conveyorSizing(i: ConveyorInput): CalcResult<ConveyorOutput> {
   let speed = 0
   let shaftRpm = 0
   let shaftKw = 0
+  const extra: { maxCapacityTph?: number; loadingPct?: number } = {}
 
   if (i.type === 'scraper') {
     const W = need(i.troughWidthMm, 'Trough width') / 1000
@@ -130,13 +141,41 @@ export function conveyorSizing(i: ConveyorInput): CalcResult<ConveyorOutput> {
     )
   } else if (i.type === 'screw') {
     const D = need(i.screwDiameterMm, 'Screw diameter') / 1000
-    const pr = need(i.pitchRatio, 'Pitch ratio')
-    requirePositive({ 'Screw diameter': D, 'Pitch ratio': pr, 'Length': i.lengthM })
-    const S = D * pr
+    requirePositive({ 'Screw diameter': D, 'Length': i.lengthM })
+    steps.push({ label: 'Screw geometry', formula: `flight Ø${i.screwDiameterMm}, pitch ${i.screwPitchMm ?? '—'}, pipe Ø${i.pipeMm ?? 0}, shaft Ø${i.shaftDiaMm ?? '—'} mm`, value: i.screwDiameterMm!, unit: 'mm' })
+    const S = i.screwPitchMm !== undefined ? i.screwPitchMm / 1000 : D * need(i.pitchRatio, 'Pitch ratio')
+    const d = (i.pipeMm ?? 0) / 1000
+    requirePositive({ 'Pitch': S })
+    requireNonNegative({ 'Pipe diameter': d })
+    if (d >= D) throw new InputError('Pipe diameter must be smaller than the screw diameter')
     const phi = mat.screwFill
     const k = interpolate(data.inclineFactor.screw, i.inclineDeg)
-    const perRpm = 60 * (Math.PI / 4) * D * D * S * phi * k
-    shaftRpm = qv / perRpm
+    const perRpm = 60 * (Math.PI / 4) * (D * D - d * d) * S * phi * k
+    steps.push(
+      { label: 'Pitch S', formula: i.screwPitchMm !== undefined ? 'from size table / input' : `D × pitch ratio = ${D} × ${i.pitchRatio}`, value: S, unit: 'm' },
+      { label: 'Trough loading φ (material)', formula: 'material table', value: phi, unit: '' },
+      { label: 'Incline capacity factor k', formula: `table at ${i.inclineDeg}°`, value: k, unit: '' },
+      { label: 'Volume per rpm', formula: `60·(π/4)·(D² − d²)·S·φ·k, D = ${D}, d = ${d}`, value: perRpm, unit: 'm³/h per rpm' },
+    )
+    let maxCapacityTph: number | undefined
+    let loadingPct: number | undefined
+    if (i.screwRpm !== undefined) {
+      requirePositive({ 'Screw speed': i.screwRpm })
+      shaftRpm = i.screwRpm
+      maxCapacityTph = perRpm * shaftRpm * rho
+      loadingPct = (phi * 100 * i.capacityTph) / maxCapacityTph
+      steps.push(
+        { label: 'Screw speed N (given)', formula: 'entered', value: shaftRpm, unit: 'rpm' },
+        { label: 'Capacity at this speed', formula: `volume per rpm × N × ρ = ${perRpm.toFixed(3)} × ${shaftRpm} × ${rho}`, value: maxCapacityTph, unit: 't/h' },
+        { label: 'Actual trough loading', formula: `φ × Q / capacity = ${phi} × ${i.capacityTph} / ${maxCapacityTph.toFixed(2)}`, value: loadingPct, unit: '%' },
+      )
+      if (i.capacityTph > maxCapacityTph * 1.001) warnings.push(`At ${shaftRpm} rpm this screw carries only ${maxCapacityTph.toFixed(1)} t/h at ${(phi * 100).toFixed(0)}% loading; ${i.capacityTph} t/h would overfill it to ${loadingPct.toFixed(0)}%. Increase the speed or the size.`)
+    } else {
+      shaftRpm = qv / perRpm
+      steps.push({ label: 'Required screw speed N', formula: `Qv / volume per rpm = ${qv.toFixed(2)} / ${perRpm.toFixed(3)}`, value: shaftRpm, unit: 'rpm' })
+    }
+    extra.maxCapacityTph = maxCapacityTph
+    extra.loadingPct = loadingPct
     speed = (S * shaftRpm) / 60
     const Lh = i.lengthM * Math.cos(theta)
     const H = i.lengthM * Math.sin(theta)
@@ -145,16 +184,22 @@ export function conveyorSizing(i: ConveyorInput): CalcResult<ConveyorOutput> {
     const pN = (D * i.lengthM) / 20
     shaftKw = pH + pSt + pN
     steps.push(
-      { label: 'Pitch S', formula: `D × pitch ratio = ${D} × ${pr}`, value: S, unit: 'm' },
-      { label: 'Trough loading φ (material)', formula: 'material table', value: phi, unit: '' },
-      { label: 'Incline capacity factor k', formula: `table at ${i.inclineDeg}°`, value: k, unit: '' },
-      { label: 'Volume per rpm', formula: `60·(π/4)·D²·S·φ·k`, value: perRpm, unit: 'm³/h per rpm' },
-      { label: 'Required screw speed N', formula: `Qv / volume per rpm = ${qv.toFixed(2)} / ${perRpm.toFixed(3)}`, value: shaftRpm, unit: 'rpm' },
       { label: 'Progress power PH', formula: `Q·λ·L·cos θ / 367, λ = ${mat.screwLambda}`, value: pH, unit: 'kW' },
       { label: 'Lift power PSt', formula: `Q·H / 367 = ${i.capacityTph} × ${H.toFixed(2)} / 367`, value: pSt, unit: 'kW' },
       { label: 'No-load power PN', formula: `D·L / 20 = ${D} × ${i.lengthM} / 20`, value: pN, unit: 'kW' },
       { label: 'Shaft power', formula: 'PH + PSt + PN', value: shaftKw, unit: 'kW' },
     )
+    if (i.shaftDiaMm) {
+      const ds = i.shaftDiaMm / 1000
+      const tau = data.shaftAllowableShearMPa.value
+      const allowNm = (tau * 1e6 * Math.PI * ds ** 3) / 16
+      const shaftTorque = (9550 * shaftKw * i.powerMargin) / shaftRpm
+      steps.push(
+        { label: 'Screw shaft torque', formula: `9550 × shaft kW × margin / N = 9550 × ${shaftKw.toFixed(2)} × ${i.powerMargin} / ${shaftRpm.toFixed(1)}`, value: shaftTorque, unit: 'N·m' },
+        { label: `Shaft Ø${i.shaftDiaMm} torque limit`, formula: `τ·π·d³/16, τ = ${tau} MPa`, value: allowNm, unit: 'N·m' },
+      )
+      if (shaftTorque > allowNm) warnings.push(`Screw torque ${shaftTorque.toFixed(0)} N·m exceeds the Ø${i.shaftDiaMm} mm shaft limit of about ${allowNm.toFixed(0)} N·m. Run faster, shorten the screw, or use a bigger size.`)
+    }
     if (i.inclineDeg > 30) warnings.push('Screws steeper than 30° need a special inclined or vertical screw design; capacity factor is extrapolated.')
   } else if (i.type === 'belt') {
     const B = need(i.beltWidthMm, 'Belt width') / 1000
@@ -211,7 +256,7 @@ export function conveyorSizing(i: ConveyorInput): CalcResult<ConveyorOutput> {
   }
 
   if (type.speed && (speed < type.speed[0] || speed > type.speed[1])) warnings.push(`Speed ${speed.toFixed(2)} m/s is outside the typical ${type.speed[0]}–${type.speed[1]} m/s for a ${type.name.toLowerCase()}. Change the size to bring it into range.`)
-  if (type.rpm && (shaftRpm < type.rpm[0] || shaftRpm > type.rpm[1])) warnings.push(`Screw speed ${shaftRpm.toFixed(0)} rpm is outside the typical ${type.rpm[0]}–${type.rpm[1]} rpm. Change the diameter to bring it into range.`)
+  if (type.rpm && (shaftRpm < type.rpm[0] || shaftRpm > type.rpm[1])) warnings.push(`Screw speed ${shaftRpm.toFixed(0)} rpm is outside the typical ${type.rpm[0]}–${type.rpm[1]} rpm. Choose ${shaftRpm > type.rpm[1] ? 'a bigger' : 'a smaller'} size to bring it into range.`)
 
   // Drive selection
   const eta = type.efficiency
@@ -250,7 +295,7 @@ export function conveyorSizing(i: ConveyorInput): CalcResult<ConveyorOutput> {
   )
 
   return {
-    values: { densityTm3: rho, speedMs: speed, shaftRpm, shaftKw, requiredKw, motorKw, ratioRequired, ratioSelected, extraReduction, outputRpm, torqueNm, designTorqueNm, gearbox },
+    values: { densityTm3: rho, speedMs: speed, shaftRpm, shaftKw, ...extra, requiredKw, motorKw, ratioRequired, ratioSelected, extraReduction, outputRpm, torqueNm, designTorqueNm, gearbox },
     steps,
     warnings,
   }
