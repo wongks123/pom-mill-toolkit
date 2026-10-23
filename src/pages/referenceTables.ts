@@ -17,8 +17,8 @@ export const TABLES: Table[] = [
   { id: 'bulkDensities', ...bulkDensities },
   {
     id: 'scraperDesigns', title: 'Scraper bar conveyor designs', source: `${conveyors.scraperDesigns.source} ${conveyors.scraperDesigns.reviewNote}`, review: conveyors.scraperDesigns.review,
-    columns: ['Conveyor', 'Drawing', 'Inside width (mm)', 'Flight W × H (mm)', 'Drive sprocket (152.4 pitch)', 'Shaft Ø (mm)', 'Flight every', 'Notes'],
-    rows: conveyors.scraperDesigns.designs.map((z) => [z.name, z.drawing, z.insideMm, `${z.flightWidthMm} × ${z.flightHeightMm}`, `${z.sprocketTeeth}T (PCD ${(152.4 / Math.sin(Math.PI / z.sprocketTeeth)).toFixed(0)})`, z.shaftMm, `${z.flightEveryLinks} links`, z.note ?? '']),
+    columns: ['Common use', 'Inside width (mm)', 'Flight W × H (mm)', 'Standard drive sprocket (152.4 pitch)', 'Shaft Ø (mm)', 'Flights', 'Chain + flight mass (kg/m)'],
+    rows: conveyors.scraperDesigns.designs.map((z) => [z.usage, z.insideMm, `${z.flightWidthMm} × ${z.flightHeightMm}`, `${z.sprocketTeeth}T (PCD ${(152.4 / Math.sin(Math.PI / z.sprocketTeeth)).toFixed(0)})`, z.shaftMm, z.flight, z.movingKgPerM]),
   },
   {
     id: 'screwSizes', title: 'Standard screw conveyor sizes', source: conveyors.screwSizes.source,
@@ -26,9 +26,9 @@ export const TABLES: Table[] = [
     rows: conveyors.screwSizes.sizes.map((z) => [z.size, z.pitchMm, z.flightMm, z.pipeMm, z.shaftMm, z.troughMm]),
   },
   {
-    id: 'conveyorMaterials', title: conveyors.title, source: conveyors.source, review: conveyors.review,
-    columns: ['Material', 'Bulk density (t/m³)', 'Scraper μ', 'Screw λ', 'Screw fill φ', 'Belt surcharge (°)', 'Max belt incline (°)', 'Usual conveyors'],
-    rows: conveyors.materials.map((m) => [m.name, m.density, m.scraperMu, m.screwLambda, m.screwFill, m.surcharge, m.maxBeltIncline, m.suits.map((t) => conveyors.types.find((x) => x.id === t)?.name ?? t).join(', ')]),
+    id: 'conveyorMaterials', title: conveyors.title, source: `${conveyors.source} ${conveyors.ffbRatioNote}`, review: conveyors.review,
+    columns: ['Material', 'Share of FFB', 'Bulk density (t/m³)', 'Scraper μ', 'Screw λ', 'Screw fill φ', 'Belt surcharge (°)', 'Max belt incline (°)', 'Usual conveyors'],
+    rows: conveyors.materials.map((m) => [m.name, m.ffbRatio, m.density, m.scraperMu, m.screwLambda, m.screwFill, m.surcharge, m.maxBeltIncline, m.suits.map((t) => conveyors.types.find((x) => x.id === t)?.name ?? t).join(', ')]),
   },
   { id: 'cpoProperties', ...cpoProperties },
   { id: 'fattyAcids', ...fattyAcids },

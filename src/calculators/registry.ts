@@ -8,7 +8,7 @@ import { motorAmps, motorSpeed, pfCorrection, startingCurrent } from '../engine/
 import { GallonType, pipeVelocity, pumpEfficiency, pumpPowerImperial, pumpPowerSI } from '../engine/pumping'
 import { massBalance, oerFromBunch, oerKerFromProduction, oilLoss, pressCakeCheck } from '../engine/process'
 import { productionCost } from '../engine/cost'
-import { CHAIN_PITCH_MM, CONVEYOR_MATERIALS, CONVEYOR_TYPES, SCRAPER_DESIGNS, SCREW_SIZES, conveyorSizing, sprocketPcd } from '../engine/conveyor'
+import { CHAIN_PITCH_MM, CONVEYOR_MATERIALS, CONVEYOR_TYPES, SCRAPER_DESIGNS, SCREW_SIZES, SPROCKET_TEETH, conveyorSizing, loadFromMill, sprocketPcd } from '../engine/conveyor'
 import oilLossData from '../data/oilLosses.json'
 import pressCakeData from '../data/pressCakeTargets.json'
 import startingMethods from '../data/startingMethods.json'
@@ -291,21 +291,33 @@ export const CALCULATORS: CalcDef[] = [
     inputs: [
       { key: 'type', label: 'Conveyor type', default: 0, options: CONVEYOR_TYPES.map((t, i) => ({ value: i, label: t.name })) },
       { key: 'material', label: 'Material handled', default: 0, options: CONVEYOR_MATERIALS.map((m, i) => ({ value: i, label: `${m.name} (${m.density} t/m³)` })) },
-      { key: 'Q', label: 'Target capacity', unit: 't/h', default: 60, typical: [0.5, 150] },
+      {
+        key: 'capBasis', label: 'Capacity based on', default: 0,
+        options: [{ value: 0, label: 'Mill capacity (t FFB/h)' }, { value: 1, label: 'This conveyor’s load (t/h)' }],
+      },
+      { key: 'mill', label: 'Mill capacity', unit: 't FFB/h', default: 60, typical: [10, 120], project: 'capacityTph', hint: 'Load = mill × material share of FFB', showIf: (v) => v.capBasis !== 1 },
+      { key: 'Q', label: 'Conveyor load', unit: 't/h', default: 60, typical: [0.5, 150], hint: 'Material actually carried', showIf: (v) => v.capBasis === 1 },
       { key: 'L', label: 'Conveyor length', unit: 'm', default: 20, typical: [2, 80], showIf: (v) => v.type !== 3 },
       { key: 'incline', label: 'Incline angle', unit: '°', default: 0, allowZero: true, max: 90, typical: [0, 60], showIf: (v) => v.type !== 3 },
       { key: 'liftM', label: 'Lift height', unit: 'm', default: 14, typical: [3, 30], showIf: (v) => v.type === 3 },
       // Scraper bar conveyor
       {
-        key: 'scraperDesign', label: 'Scraper conveyor design', default: 0, showIf: (v) => v.type === 0,
+        key: 'scraperDesign', label: 'Scraper conveyor size', default: 0, hint: 'Width · flight W×H (mm)', showIf: (v) => v.type === 0,
         options: [
-          ...SCRAPER_DESIGNS.map((z, k) => ({ value: k, label: `${z.name} – ${z.drawing}` })),
+          ...SCRAPER_DESIGNS.map((z, k) => ({ value: k, label: `${z.insideMm} · ${z.flightWidthMm}×${z.flightHeightMm} (${z.usage})` })),
           { value: CUSTOM, label: 'Custom size (enter below)' },
         ],
       },
       { key: 'troughW', label: 'Flight width', unit: 'mm', default: 1090, typical: [300, 1500], showIf: (v) => v.type === 0 && v.scraperDesign === CUSTOM },
       { key: 'flightH', label: 'Flight height', unit: 'mm', default: 160, typical: [75, 400], showIf: (v) => v.type === 0 && v.scraperDesign === CUSTOM },
-      { key: 'sprocketT', label: 'Drive sprocket teeth (152.4 pitch chain)', default: 21, step: 1, typical: [6, 30], showIf: (v) => v.type === 0 && v.scraperDesign === CUSTOM },
+      { key: 'chainKg', label: 'Chain + flight mass (both chains)', unit: 'kg/m', default: 32, typical: [10, 80], hint: 'Two 152.4 chains ≈ 24 kg/m + flights', showIf: (v) => v.type === 0 && v.scraperDesign === CUSTOM },
+      {
+        key: 'sprocket', label: 'Drive sprocket (152.4 pitch chain)', default: 0, showIf: (v) => v.type === 0,
+        options: [
+          { value: 0, label: 'Standard for this size' },
+          ...SPROCKET_TEETH.map((t) => ({ value: t, label: `${t} teeth (PCD ${sprocketPcd(CHAIN_PITCH_MM, t).toFixed(0)} mm)` })),
+        ],
+      },
       // Screw conveyor
       {
         key: 'screwSize', label: 'Screw conveyor size', default: 2, showIf: (v) => v.type === 1,
@@ -331,27 +343,49 @@ export const CALCULATORS: CalcDef[] = [
       { key: 'bucketL', label: 'Bucket / flight volume', unit: 'L', default: 50, typical: [2, 200], showIf: (v) => v.type === 3 },
       { key: 'bucketP', label: 'Bucket pitch', unit: 'm', default: 0.6, typical: [0.2, 1], showIf: (v) => v.type === 3 },
       // Scraper and elevator
-      { key: 'fill', label: 'Fill factor', default: 0.6, max: 1, typical: [0.4, 0.85], showIf: (v) => v.type === 0 || v.type === 3 },
+      { key: 'fill', label: 'Fill factor', default: 0.6, max: 1, typical: [0.4, 0.85], hint: 'How full the flights run; 0.6 is typical', showIf: (v) => v.type === 0 || v.type === 3 },
       { key: 'pcd', label: 'Head sprocket PCD', unit: 'mm', default: 400, typical: [150, 800], showIf: (v) => v.type === 3 },
-      { key: 'chainKg', label: 'Chain + flights mass (per strand)', unit: 'kg/m', default: 40, typical: [5, 120], showIf: (v) => v.type === 0 },
-      { key: 'chainMu', label: 'Chain sliding friction μc', default: 0.3, typical: [0.1, 0.4], showIf: (v) => v.type === 0 },
       // Drive
-      { key: 'rho', label: 'Bulk density override', unit: 't/m³', default: 0, allowZero: true, typical: [0, 1.2], hint: '0 = use material table' },
-      { key: 'motorRpm', label: 'Motor speed', unit: 'rpm', default: 1450, typical: [700, 3000], hint: '4-pole 50 Hz' },
-      { key: 'margin', label: 'Power margin', default: 1.2, typical: [1, 1.5] },
-      { key: 'gearSF', label: 'Gearbox service factor', default: 1.5, typical: [1, 2.5], hint: 'Heavy shock, 24 h duty ≈ 1.5–2' },
+      {
+        key: 'motorRpm', label: 'Motor type (50 Hz)', default: 1450,
+        options: [
+          { value: 1450, label: '4-pole, 1450 rpm (most common)' },
+          { value: 2900, label: '2-pole, 2900 rpm' },
+          { value: 960, label: '6-pole, 960 rpm' },
+          { value: 720, label: '8-pole, 720 rpm' },
+        ],
+      },
+      {
+        key: 'margin', label: 'Motor power margin', default: 1.2, hint: 'Extra for start-up, surges, wear',
+        options: [
+          { value: 1.1, label: '+10% – steady load' },
+          { value: 1.2, label: '+20% – normal' },
+          { value: 1.3, label: '+30% – uneven feed (FFB, SFB)' },
+          { value: 1.5, label: '+50% – frequent jams' },
+        ],
+      },
+      {
+        key: 'gearSF', label: 'Gearbox duty', default: 1.5,
+        options: [
+          { value: 1.25, label: 'Light: uniform load, ≤ 10 h/day (SF 1.25)' },
+          { value: 1.5, label: 'Normal mill conveyor, 24 h (SF 1.5)' },
+          { value: 1.75, label: 'Heavy shock, 24 h (SF 1.75)' },
+          { value: 2, label: 'Severe shock / frequent starts (SF 2.0)' },
+        ],
+      },
     ],
     compute: (v) => {
       const type = CONVEYOR_TYPES[v.type]
       const material = CONVEYOR_MATERIALS[v.material]
       const size = v.screwSize === CUSTOM ? undefined : SCREW_SIZES[v.screwSize]
       const design = v.scraperDesign === CUSTOM ? undefined : SCRAPER_DESIGNS[v.scraperDesign]
-      const teeth = design?.sprocketTeeth ?? v.sprocketT
+      const teeth = v.sprocket > 0 ? v.sprocket : (design?.sprocketTeeth ?? 12)
+      const load = v.capBasis === 1 ? { tph: v.Q, ratio: undefined } : loadFromMill(v.mill, material.id)
       const r = conveyorSizing({
-        type: type.id, materialId: material.id, capacityTph: v.Q, lengthM: v.L, inclineDeg: v.type === 3 ? 90 : v.incline, densityOverride: v.rho,
+        type: type.id, materialId: material.id, capacityTph: load.tph, lengthM: v.L, inclineDeg: v.type === 3 ? 90 : v.incline,
         motorRpm: v.motorRpm, powerMargin: v.margin, gearServiceFactor: v.gearSF,
         troughWidthMm: design?.flightWidthMm ?? v.troughW, flightHeightMm: design?.flightHeightMm ?? v.flightH, fill: v.fill,
-        sprocketPcdMm: v.type === 0 ? sprocketPcd(CHAIN_PITCH_MM, teeth) : v.pcd, chainKgPerM: v.chainKg, chainMu: v.chainMu,
+        sprocketPcdMm: v.type === 0 ? sprocketPcd(CHAIN_PITCH_MM, teeth) : v.pcd, chainKgPerM: design?.movingKgPerM ?? v.chainKg,
         screwDiameterMm: size?.flightMm ?? v.screwD, screwPitchMm: size?.pitchMm ?? v.screwPitch, pipeMm: size?.pipeMm ?? v.pipeD, shaftDiaMm: v.type === 0 ? (design?.shaftMm ?? v.shaftD) : (size?.shaftMm ?? v.shaftD),
         fixedRpm: v.rpmMode === 1 && (v.type === 0 || v.type === 1) ? (v.type === 0 ? v.scraperRpm : v.screwRpm) : undefined,
         beltWidthMm: v.beltW, troughDeg: v.trough, pulleyMm: v.pulleyD, beltKgPerM: v.beltKg, idlerKgPerM: v.idlerKg,
@@ -360,11 +394,16 @@ export const CALCULATORS: CalcDef[] = [
       const x = r.values
       if (v.type === 0) {
         const pcd = sprocketPcd(CHAIN_PITCH_MM, teeth)
-        r.steps.unshift({ label: 'Conveyor geometry', formula: `${design ? `${design.name} (${design.drawing}): ` : ''}flight ${design?.flightWidthMm ?? v.troughW} × ${design?.flightHeightMm ?? v.flightH} mm, ${teeth}T × ${CHAIN_PITCH_MM} sprocket, PCD = p / sin(180°/z)`, value: pcd, unit: 'mm' })
+        r.steps.unshift(
+          { label: 'Conveyor geometry', formula: `${design ? `${design.insideMm} wide (${design.usage}): ` : ''}flight ${design?.flightWidthMm ?? v.troughW} × ${design?.flightHeightMm ?? v.flightH} mm, ${teeth}T × ${CHAIN_PITCH_MM} sprocket, PCD = p / sin(180°/z)`, value: pcd, unit: 'mm' },
+          { label: 'Chain + flight mass qc', formula: design ? `two chains + ${design.flight}` : 'entered', value: design?.movingKgPerM ?? v.chainKg, unit: 'kg/m' },
+        )
       }
+      if (load.ratio !== undefined) r.steps.unshift({ label: `Conveyor load (${material.name})`, formula: `mill capacity × share of FFB = ${v.mill} × ${load.ratio}`, value: load.tph, unit: 't/h' })
       return {
         primary: { label: 'Required motor power', value: x.requiredKw, unit: 'kW', digits: 2 },
         outputs: [
+          { label: 'Conveyor load', value: load.tph, unit: 't/h', digits: 1 },
           { label: v.type === 1 ? 'Screw speed' : 'Conveyor speed', value: v.type === 1 ? x.shaftRpm : x.speedMs, unit: v.type === 1 ? 'rpm' : 'm/s', digits: 2 },
           { label: 'Required conveyor RPM', value: x.shaftRpm, unit: 'rpm', digits: 1 },
           ...(x.maxCapacityTph !== undefined ? [

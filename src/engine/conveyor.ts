@@ -8,6 +8,15 @@ export const CONVEYOR_MATERIALS = data.materials
 export const SCREW_SIZES = data.screwSizes.sizes
 export const SCRAPER_DESIGNS = data.scraperDesigns.designs
 export const CHAIN_PITCH_MM = data.scraperDesigns.chainPitchMm
+export const SPROCKET_TEETH = data.scraperDesigns.sprocketOptions
+
+/** Conveyor load from mill capacity, using the material's typical share of FFB. */
+export function loadFromMill(millTph: number, materialId: string): { tph: number; ratio: number } {
+  const mat = CONVEYOR_MATERIALS.find((m) => m.id === materialId)
+  if (!mat) throw new InputError('Unknown material')
+  requirePositive({ 'Mill capacity': millTph })
+  return { tph: millTph * mat.ffbRatio, ratio: mat.ffbRatio }
+}
 
 /** Pitch circle diameter of a chain sprocket: p / sin(180°/z). */
 export function sprocketPcd(pitchMm: number, teeth: number): number {
@@ -21,8 +30,8 @@ export interface ConveyorInput {
   /** Length along the conveyor (m). Not used by the elevator. */
   lengthM: number
   inclineDeg: number
-  /** t/m³; 0 uses the material table. */
-  densityOverride: number
+  /** t/m³; omit or 0 to use the material table. */
+  densityOverride?: number
   motorRpm: number
   powerMargin: number
   gearServiceFactor: number
@@ -36,7 +45,9 @@ export interface ConveyorInput {
   // Scraper and elevator
   fill?: number
   sprocketPcdMm?: number
+  /** Moving chain + flight mass per metre of conveyor (both strands), one run. */
   chainKgPerM?: number
+  /** Chain sliding friction; defaults to the data table value. */
   chainMu?: number
   // Screw conveyor: flight diameter, pitch (mm, or pitch ratio × D), centre pipe OD
   screwDiameterMm?: number
@@ -101,13 +112,14 @@ export function conveyorSizing(i: ConveyorInput): CalcResult<ConveyorOutput> {
   if (!type) throw new InputError('Unknown conveyor type')
   if (!mat) throw new InputError('Unknown material')
   requirePositive({ 'Capacity': i.capacityTph, 'Motor speed': i.motorRpm, 'Power margin': i.powerMargin, 'Gearbox service factor': i.gearServiceFactor })
-  requireNonNegative({ 'Incline angle': i.inclineDeg, 'Bulk density override': i.densityOverride })
+  const override = i.densityOverride ?? 0
+  requireNonNegative({ 'Incline angle': i.inclineDeg, 'Bulk density override': override })
   if (i.inclineDeg > 90) throw new InputError('Incline angle cannot exceed 90°')
 
   const steps: Step[] = []
   const warnings: string[] = []
-  const rho = i.densityOverride > 0 ? i.densityOverride : mat.density
-  steps.push({ label: `Bulk density ρ (${mat.name})`, formula: i.densityOverride > 0 ? 'user override' : 'material table', value: rho, unit: 't/m³' })
+  const rho = override > 0 ? override : mat.density
+  steps.push({ label: `Bulk density ρ (${mat.name})`, formula: override > 0 ? 'user override' : 'material table', value: rho, unit: 't/m³' })
   const qv = i.capacityTph / rho
   steps.push({ label: 'Volume flow Qv', formula: `Q / ρ = ${i.capacityTph} / ${rho}`, value: qv, unit: 'm³/h' })
 
@@ -125,7 +137,7 @@ export function conveyorSizing(i: ConveyorInput): CalcResult<ConveyorOutput> {
     const phi = need(i.fill, 'Fill factor')
     const pcd = need(i.sprocketPcdMm, 'Sprocket PCD') / 1000
     const qc = need(i.chainKgPerM, 'Chain mass')
-    const muC = need(i.chainMu, 'Chain friction')
+    const muC = i.chainMu ?? data.scraperChainMu
     requirePositive({ 'Flight width': W, 'Flight height': h, 'Sprocket PCD': pcd, 'Length': i.lengthM, 'Chain mass': qc, 'Chain friction': muC })
     requireFraction({ 'Fill factor': phi })
     const k = interpolate(data.inclineFactor.scraper, i.inclineDeg)

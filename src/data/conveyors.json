@@ -16,7 +16,8 @@
         "scraper",
         "belt",
         "elevator"
-      ]
+      ],
+      "ffbRatio": 1.0
     },
     {
       "id": "sfb",
@@ -31,7 +32,8 @@
         "scraper",
         "belt",
         "elevator"
-      ]
+      ],
+      "ffbRatio": 0.9
     },
     {
       "id": "efb",
@@ -47,7 +49,8 @@
         "belt",
         "elevator",
         "screw"
-      ]
+      ],
+      "ffbRatio": 0.22
     },
     {
       "id": "fruit",
@@ -63,7 +66,8 @@
         "belt",
         "elevator",
         "screw"
-      ]
+      ],
+      "ffbRatio": 0.6
     },
     {
       "id": "cake",
@@ -78,7 +82,8 @@
         "screw",
         "scraper",
         "belt"
-      ]
+      ],
+      "ffbRatio": 0.27
     },
     {
       "id": "fibre",
@@ -93,7 +98,8 @@
         "scraper",
         "screw",
         "belt"
-      ]
+      ],
+      "ffbRatio": 0.13
     },
     {
       "id": "mixture",
@@ -108,7 +114,8 @@
         "screw",
         "elevator",
         "belt"
-      ]
+      ],
+      "ffbRatio": 0.12
     },
     {
       "id": "nut",
@@ -123,7 +130,8 @@
         "screw",
         "elevator",
         "belt"
-      ]
+      ],
+      "ffbRatio": 0.12
     },
     {
       "id": "kernel",
@@ -138,7 +146,8 @@
         "screw",
         "elevator",
         "belt"
-      ]
+      ],
+      "ffbRatio": 0.055
     },
     {
       "id": "shell",
@@ -154,7 +163,8 @@
         "scraper",
         "elevator",
         "belt"
-      ]
+      ],
+      "ffbRatio": 0.065
     },
     {
       "id": "ash",
@@ -168,7 +178,8 @@
       "suits": [
         "screw",
         "scraper"
-      ]
+      ],
+      "ffbRatio": 0.01
     },
     {
       "id": "decanter",
@@ -183,7 +194,8 @@
         "screw",
         "scraper",
         "belt"
-      ]
+      ],
+      "ffbRatio": 0.035
     }
   ],
   "types": [
@@ -588,133 +600,113 @@
     "note": "[REVIEW] Allowable torsional shear for a keyed mild-steel drive shaft (typical design value)."
   },
   "scraperDesigns": {
-    "source": "iTake Solutions scraper conveyor drawings for TBS Palm Oil Mill (2018): TBS/FR4, TS2, TS4b, TS7, TS8, PS4, PS5, DS3, BH2. All use 152.4 mm pitch roller chain, two strands.",
+    "source": "iTake Solutions scraper bar conveyor drawings (2018). All use 152.4 mm pitch roller chain, two strands.",
     "chainPitchMm": 152.4,
     "review": true,
-    "reviewNote": "[REVIEW] Flight height is read as the bottom-plate-to-chain-line height on each section (160/170 mm), or 150 mm for the 150×50 hollow-section scraper bars. The USB conveyor flight width is estimated from the 900 mm trough.",
+    "reviewNote": "[REVIEW] Flight height is read as the bottom-plate-to-chain-line height on each section (160/170 mm), or 150 mm for 150×50 hollow-section scraper bars. The 900 trough flight width is estimated. Moving mass = two 152.4 pitch chains at about 12 kg/m each plus flights spread over their spacing.",
     "designs": [
       {
-        "id": "ffb",
-        "name": "FFB conveyor",
-        "drawing": "TBS/FR4",
+        "id": "1200-1090",
+        "usage": "FFB",
+        "drawings": "FR4",
         "insideMm": 1200,
         "flightWidthMm": 1090,
         "flightHeightMm": 160,
         "sprocketTeeth": 21,
         "shaftMm": 125,
         "flightEveryLinks": 8,
+        "flight": "Ø75 SCH40 pipe every 8 links",
+        "movingKgPerM": 32,
         "material": "ffb",
-        "inclineDeg": 0,
-        "note": "Ø75 SCH40 pipe flights every 8 links"
+        "inclineDeg": 0
       },
       {
-        "id": "sfb-incl",
-        "name": "Inclined SFB conveyor (1200)",
-        "drawing": "TBS/TS2",
+        "id": "1200-1011",
+        "usage": "SFB, horizontal & inclined",
+        "drawings": "TS2, TS4b",
         "insideMm": 1200,
         "flightWidthMm": 1011,
         "flightHeightMm": 170,
         "sprocketTeeth": 16,
         "shaftMm": 125,
         "flightEveryLinks": 6,
+        "flight": "Ø75 pipe every 6 links + 6 mm plate every 12 links",
+        "movingKgPerM": 39,
         "material": "sfb",
-        "inclineDeg": 30,
-        "note": "Ø75 pipe flights every 6 links, 6 mm plate every 12 links"
+        "inclineDeg": 30
       },
       {
-        "id": "sfb-horz",
-        "name": "Horizontal SFB conveyor (1200)",
-        "drawing": "TBS/TS4b",
-        "insideMm": 1200,
-        "flightWidthMm": 1011,
-        "flightHeightMm": 170,
-        "sprocketTeeth": 12,
-        "shaftMm": 125,
-        "flightEveryLinks": 6,
-        "material": "sfb",
-        "inclineDeg": 0,
-        "note": "12T drive / 16T take-up sprocket"
-      },
-      {
-        "id": "sfb-800",
-        "name": "Horizontal SFB conveyor (800)",
-        "drawing": "TBS/DS3",
-        "insideMm": 800,
-        "flightWidthMm": 610,
-        "flightHeightMm": 170,
-        "sprocketTeeth": 12,
-        "shaftMm": 75,
-        "flightEveryLinks": 6,
-        "material": "sfb",
-        "inclineDeg": 0
-      },
-      {
-        "id": "usb",
-        "name": "USB scraper bar conveyor (to thresher)",
-        "drawing": "TBS/TS7",
+        "id": "900-800",
+        "usage": "USB to thresher",
+        "drawings": "TS7",
         "insideMm": 900,
         "flightWidthMm": 800,
         "flightHeightMm": 150,
         "sprocketTeeth": 8,
         "shaftMm": 100,
         "flightEveryLinks": 6,
+        "flight": "150×50×4.5 hollow-section bar every 6 links",
+        "movingKgPerM": 36,
         "material": "sfb",
-        "inclineDeg": 55,
-        "note": "150×50×4.5 hollow-section scraper every 6th link"
+        "inclineDeg": 55
       },
       {
-        "id": "efb",
-        "name": "Empty bunch conveyor",
-        "drawing": "TBS/TS8",
-        "insideMm": 800,
-        "flightWidthMm": 584,
-        "flightHeightMm": 160,
-        "sprocketTeeth": 10,
-        "shaftMm": 75,
-        "flightEveryLinks": 6,
-        "material": "efb",
-        "inclineDeg": 30
-      },
-      {
-        "id": "fruit",
-        "name": "Inclined fruit conveyor",
-        "drawing": "TBS/PS4",
-        "insideMm": 800,
-        "flightWidthMm": 584,
-        "flightHeightMm": 160,
-        "sprocketTeeth": 10,
-        "shaftMm": 75,
-        "flightEveryLinks": 6,
-        "material": "fruit",
-        "inclineDeg": 30
-      },
-      {
-        "id": "cake",
-        "name": "Cake breaker conveyor",
-        "drawing": "TBS/PS5",
-        "insideMm": 800,
-        "flightWidthMm": 610,
-        "flightHeightMm": 170,
-        "sprocketTeeth": 12,
-        "shaftMm": 75,
-        "flightEveryLinks": 6,
-        "material": "cake",
-        "inclineDeg": 0
-      },
-      {
-        "id": "boiler",
-        "name": "Boiler fuel distributing conveyor",
-        "drawing": "TBS/BH2",
+        "id": "800-704",
+        "usage": "Boiler fuel distributing",
+        "drawings": "BH2",
         "insideMm": 800,
         "flightWidthMm": 704,
         "flightHeightMm": 150,
         "sprocketTeeth": 8,
         "shaftMm": 100,
         "flightEveryLinks": 4,
+        "flight": "150×50×4.5 scraper plate every 4 links",
+        "movingKgPerM": 40,
         "material": "fibre",
-        "inclineDeg": 0,
-        "note": "150×50×4.5 scraper plate every 4th link; 36,000 lb chain"
+        "inclineDeg": 0
+      },
+      {
+        "id": "800-610",
+        "usage": "small SFB line, cake breaker",
+        "drawings": "DS3, PS5",
+        "insideMm": 800,
+        "flightWidthMm": 610,
+        "flightHeightMm": 170,
+        "sprocketTeeth": 12,
+        "shaftMm": 75,
+        "flightEveryLinks": 6,
+        "flight": "Ø75 pipe every 6 links + 6 mm plate every 12 links",
+        "movingKgPerM": 32,
+        "material": "cake",
+        "inclineDeg": 0
+      },
+      {
+        "id": "800-584",
+        "usage": "EFB, loose fruit",
+        "drawings": "TS8, PS4",
+        "insideMm": 800,
+        "flightWidthMm": 584,
+        "flightHeightMm": 160,
+        "sprocketTeeth": 10,
+        "shaftMm": 75,
+        "flightEveryLinks": 6,
+        "flight": "Ø50 pipe every 6 links + 6 mm plate every 12 links",
+        "movingKgPerM": 30,
+        "material": "efb",
+        "inclineDeg": 30
       }
+    ],
+    "sprocketOptions": [
+      8,
+      10,
+      12,
+      14,
+      16,
+      18,
+      21,
+      24
     ]
-  }
+  },
+  "ffbRatioNote": "[REVIEW] Typical material flow as a fraction of FFB processed, used to turn mill capacity into conveyor load. Adjust to your mill's mass balance.",
+  "scraperChainMu": 0.3
 }
