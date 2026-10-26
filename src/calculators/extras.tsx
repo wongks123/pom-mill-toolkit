@@ -6,6 +6,7 @@ import profile from '../data/sterilisationProfile.json'
 import costData from '../data/productionCost.json'
 import conveyorData from '../data/conveyors.json'
 import { CONVEYOR_MATERIALS, type ConveyorOutput, type ConveyorType } from '../engine/conveyor'
+import { pumpSystem, type PumpSystemInput, type PumpSystemOutput } from '../engine/pumpSystem'
 import { fmt } from '../components/format'
 import { ReviewBadge } from '../components/ReviewBadge'
 import type { CalcDef } from './types'
@@ -178,6 +179,140 @@ export function ConveyorExtra({ out }: ExtraProps) {
         Gearbox sizes are generic torque classes for helical-bevel units; confirm with your supplier.
       </p>
       <p className="text-xs text-stone-500">Usual materials for this conveyor: {suited.map((m) => m.name).join(', ')}.</p>
+    </div>
+  )
+}
+
+export function PumpSystemExtra({ out }: ExtraProps) {
+  const d = out.data as { input: PumpSystemInput; values: PumpSystemOutput }
+  const v = d.values
+  const inp = d.input
+  // Schematic: liquid levels and pump drawn to a shared vertical scale.
+  const levels = [inp.suctionLevelM, inp.dischargeLevelM, inp.pumpLevelM]
+  const lo = Math.min(...levels)
+  const hi = Math.max(...levels, lo + 1)
+  const yOf = (z: number) => 200 - ((z - lo) / (hi - lo)) * 140
+  const ys = yOf(inp.suctionLevelM)
+  const yd = yOf(inp.dischargeLevelM)
+  const yp = yOf(inp.pumpLevelM)
+  const pipe = `M 70 ${ys + 18} V ${yp} H 150 M 190 ${yp} H 260 V ${yd - 22} H 300`
+  const dur = Math.max(0.6, 6 / Math.max(0.2, (v.dischargeVelocity ?? 1.5)))
+
+  // Head breakdown (single series, horizontal bars).
+  const parts: [string, number][] = [
+    ['Pressure', v.pressureHeadM],
+    ['Static lift', v.staticHeadM],
+    ['Suction loss', v.suctionLossM],
+    ['Discharge loss', v.dischargeLossM],
+  ]
+  const maxAbs = Math.max(1, ...parts.map(([, x]) => Math.abs(x)))
+  const powers: [string, number][] = [['Hydraulic', v.hydraulicKw], ['Pump shaft', v.shaftKw], ['Motor input', v.motorInputKw]]
+  const maxPower = Math.max(0.001, ...powers.map(([, x]) => x))
+
+  // System curve H(Q) from 0 to 2 × duty flow.
+  const qMax = Math.max(1, inp.flowM3h * 2)
+  const pts = Array.from({ length: 41 }, (_, k) => {
+    const q = (qMax * k) / 40
+    try {
+      return [q, pumpSystem({ ...inp, flowM3h: q }).values.headM] as const
+    } catch {
+      return [q, Number.NaN] as const
+    }
+  }).filter(([, h]) => Number.isFinite(h))
+  const hMin = Math.min(0, ...pts.map(([, h]) => h))
+  const hMax = Math.max(1, ...pts.map(([, h]) => h))
+  const X = (q: number) => 44 + (q / qMax) * 266
+  const Y = (h: number) => 170 - ((h - hMin) / (hMax - hMin)) * 140
+  const curve = pts.map(([q, h], k) => `${k ? 'L' : 'M'}${X(q).toFixed(1)} ${Y(h).toFixed(1)}`).join(' ')
+  const ink = 'currentColor'
+
+  return (
+    <div className="space-y-5 text-stone-700">
+      <div>
+        <h3 className="font-semibold">System overview</h3>
+        <svg viewBox="0 0 360 240" className="mt-2 w-full rounded-lg bg-palm-50" role="img" aria-label="Suction tank, pump and discharge tank at their elevations">
+          <rect x="30" y={ys - 10} width="80" height="60" rx="3" fill="#fff" stroke={ink} strokeWidth="2" />
+          <rect x="32" y={ys} width="76" height="48" fill="#a7d8f0" />
+          <rect x="280" y={yd - 40} width="60" height="50" rx="3" fill="#fff" stroke={ink} strokeWidth="2" />
+          <rect x="282" y={yd - 30} width="56" height="38" fill="#a7d8f0" />
+          <path d={pipe} fill="none" stroke="#78716c" strokeWidth="7" strokeLinejoin="round" />
+          <path d={pipe} fill="none" stroke="#e0f2fe" strokeWidth="2.5" strokeDasharray="4 10" strokeLinejoin="round">
+            {inp.flowM3h > 0 && <animate attributeName="stroke-dashoffset" from="28" to="0" dur={`${dur.toFixed(2)}s`} repeatCount="indefinite" />}
+          </path>
+          <circle cx="170" cy={yp} r="20" fill="#15803d" stroke="#14532d" strokeWidth="3" />
+          <path d={`M170 ${yp - 11} L180 ${yp + 8} H160 Z`} fill="#dcfce7" />
+          <g fontSize="11" fill={ink}>
+            <text x="30" y={ys - 16}>Suction {inp.suctionBarg} bar g · {inp.suctionLevelM} m</text>
+            <text x="350" y={yd - 46} textAnchor="end">Discharge {inp.dischargeBarg} bar g · {inp.dischargeLevelM} m</text>
+            <text x="170" y={yp + 36} textAnchor="middle">Pump · {inp.pumpLevelM} m</text>
+            <text x="215" y={yp - 8}>{inp.flowM3h} m³/h</text>
+          </g>
+        </svg>
+        <p className="mt-1 text-xs text-stone-500">Not to scale horizontally; heights follow the levels you entered.</p>
+      </div>
+
+      <div>
+        <h3 className="font-semibold">Where the head goes</h3>
+        <svg viewBox="0 0 360 140" className="mt-2 w-full" role="img" aria-label="Head breakdown in metres">
+          <line x1="100" y1="6" x2="100" y2="134" stroke="#d6d3d1" />
+          {parts.map(([label, x], k) => {
+            const w = (Math.abs(x) / maxAbs) * 190
+            const y = 10 + k * 32
+            return (
+              <g key={label}>
+                <title>{`${label}: ${fmt(x, 2)} m`}</title>
+                <text x="94" y={y + 15} textAnchor="end" fontSize="11" fill={ink}>{label}</text>
+                <rect x="100" y={y} width={Math.max(w, 0.5)} height="22" rx="4" fill={x < 0 ? '#a8a29e' : '#15803d'} />
+                <text x={104 + w} y={y + 15} fontSize="11" fill={ink}>{fmt(x, 2)} m</text>
+              </g>
+            )
+          })}
+        </svg>
+      </div>
+
+      <div>
+        <h3 className="font-semibold">Power conversion</h3>
+        <svg viewBox="0 0 360 110" className="mt-2 w-full" role="img" aria-label="Hydraulic, pump shaft and motor input power in kW">
+          <line x1="100" y1="6" x2="100" y2="104" stroke="#d6d3d1" />
+          {powers.map(([label, x], k) => {
+            const w = (x / maxPower) * 190
+            const y = 10 + k * 32
+            return (
+              <g key={label}>
+                <title>{`${label}: ${fmt(x, 2)} kW`}</title>
+                <text x="94" y={y + 15} textAnchor="end" fontSize="11" fill={ink}>{label}</text>
+                <rect x="100" y={y} width={Math.max(w, 0.5)} height="22" rx="4" fill="#15803d" />
+                <text x={104 + w} y={y + 15} fontSize="11" fill={ink}>{fmt(x, 2)} kW</text>
+              </g>
+            )
+          })}
+        </svg>
+        <p className="mt-1 text-xs text-stone-500">Hydraulic = power given to the liquid. Shaft = after pump losses. Motor input = drawn from the supply.</p>
+      </div>
+
+      <div>
+        <h3 className="font-semibold">System curve</h3>
+        <svg viewBox="0 0 330 200" className="mt-2 w-full" role="img" aria-label="Required head against flow rate, with the duty point">
+          <line x1="44" y1="30" x2="44" y2="170" stroke="#d6d3d1" />
+          <line x1="44" y1="170" x2="310" y2="170" stroke="#d6d3d1" />
+          {[0, 0.5, 1].map((t) => (
+            <g key={t} fontSize="10" fill="#78716c">
+              <text x={X(t * qMax)} y="184" textAnchor="middle">{fmt(t * qMax, 0)}</text>
+              <text x="38" y={Y(hMin + (hMax - hMin) * t) + 3} textAnchor="end">{fmt(hMin + (hMax - hMin) * t, 0)}</text>
+            </g>
+          ))}
+          <path d={curve} fill="none" stroke="#15803d" strokeWidth="2" />
+          <g>
+            <title>{`Duty: ${inp.flowM3h} m³/h at ${fmt(v.headM, 2)} m`}</title>
+            <circle cx={X(inp.flowM3h)} cy={Y(v.headM)} r="10" fill="transparent" />
+            <circle cx={X(inp.flowM3h)} cy={Y(v.headM)} r="5" fill="#14532d" stroke="#fff" strokeWidth="2" />
+          </g>
+          <text x={X(inp.flowM3h) + 8} y={Y(v.headM) - 8} fontSize="11" fill={ink}>{fmt(v.headM, 1)} m</text>
+          <text x="177" y="198" textAnchor="middle" fontSize="10" fill="#78716c">Flow (m³/h)</text>
+          <text x="10" y="24" fontSize="10" fill="#78716c">Head (m)</text>
+        </svg>
+        <p className="mt-1 text-xs text-stone-500">Head your pump must give at each flow. Choose a pump whose curve crosses this line at your duty point.</p>
+      </div>
     </div>
   )
 }

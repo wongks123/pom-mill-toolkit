@@ -12,9 +12,25 @@ import pipeSizes from '../data/pipeSizes.json'
 import startingMethods from '../data/startingMethods.json'
 import cost from '../data/productionCost.json'
 import conveyors from '../data/conveyors.json'
+import pumpData from '../data/pumpSystem.json'
 
 export const TABLES: Table[] = [
   { id: 'bulkDensities', ...bulkDensities },
+  {
+    id: 'pumpFluids', title: 'Mill fluids for pump sizing', source: pumpData.source, review: pumpData.review,
+    columns: ['Fluid', 'Density (kg/m³)', 'Viscosity (mPa·s)', 'Vapour pressure (kPa abs)'],
+    rows: pumpData.fluids.map((f) => [f.name, f.density, f.viscosity, f.vapourKPa]),
+  },
+  {
+    id: 'fittingK', title: 'Pipe fitting loss coefficients (K)', source: pumpData.source, review: pumpData.review,
+    columns: ['Fitting', 'K'],
+    rows: [
+      ['Tank entrance (suction)', pumpData.fittingK.entrance], ['Exit into tank (discharge)', pumpData.fittingK.exit], ['90° elbow', pumpData.fittingK.elbow90],
+      ['Gate / ball valve (open)', pumpData.fittingK.gateValve], ['Check (non-return) valve', pumpData.fittingK.checkValve], ['Globe / control valve', pumpData.fittingK.globeValve],
+      ...pumpData.fittingK.strainers.filter((x) => x.k > 0).map((x) => [x.name, x.k]),
+      ...pumpData.pipeMaterials.map((m) => [`Roughness ε: ${m.name}`, `${m.roughnessMm} mm`]),
+    ],
+  },
   {
     id: 'scraperDesigns', title: 'Scraper bar conveyor designs', source: `${conveyors.scraperDesigns.source} ${conveyors.scraperDesigns.reviewNote}`, review: conveyors.scraperDesigns.review,
     columns: ['Common use', 'Inside width (mm)', 'Flight W × H (mm)', 'Standard drive sprocket (152.4 pitch)', 'Shaft Ø (mm)', 'Flights', 'Chain + flight mass (kg/m)'],

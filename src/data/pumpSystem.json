@@ -1,0 +1,38 @@
+{
+  "title": "Pump system data: mill fluids, pipe roughness and fitting losses",
+  "source": "[REVIEW] Water properties from steam tables. CPO, DCO, sludge and POME values are typical mill figures, not from the pocketbook. Fitting K values are typical (Crane TP-410 style) averages. Check against site data.",
+  "review": true,
+  "atmosphericKPa": 101.325,
+  "fluids": [
+    { "id": "water30", "name": "Water 30 °C", "density": 996, "viscosity": 0.8, "vapourKPa": 4.25 },
+    { "id": "hotwater90", "name": "Hot water / condensate 90 °C", "density": 965, "viscosity": 0.32, "vapourKPa": 70.1 },
+    { "id": "feedwater105", "name": "Boiler feed water 105 °C", "density": 955, "viscosity": 0.27, "vapourKPa": 120.8 },
+    { "id": "cpo90", "name": "CPO 90 °C", "density": 860, "viscosity": 9, "vapourKPa": 10 },
+    { "id": "dco90", "name": "Diluted crude oil 90 °C", "density": 920, "viscosity": 5, "vapourKPa": 70 },
+    { "id": "sludge90", "name": "Sludge 90 °C", "density": 990, "viscosity": 10, "vapourKPa": 70 },
+    { "id": "pome40", "name": "POME 40 °C", "density": 1010, "viscosity": 1.5, "vapourKPa": 7.4 }
+  ],
+  "pipeMaterials": [
+    { "id": "steel", "name": "Carbon steel (new)", "roughnessMm": 0.045 },
+    { "id": "steelOld", "name": "Carbon steel (old, scaled)", "roughnessMm": 0.5 },
+    { "id": "galv", "name": "Galvanised steel", "roughnessMm": 0.15 },
+    { "id": "ss", "name": "Stainless steel", "roughnessMm": 0.015 },
+    { "id": "hdpe", "name": "HDPE / PVC", "roughnessMm": 0.0015 }
+  ],
+  "fittingK": {
+    "entrance": 0.5,
+    "exit": 1.0,
+    "elbow90": 0.75,
+    "gateValve": 0.15,
+    "checkValve": 2.0,
+    "globeValve": 10,
+    "strainers": [
+      { "id": "none", "name": "None", "k": 0 },
+      { "id": "y", "name": "Y-strainer", "k": 2 },
+      { "id": "basket", "name": "Basket strainer", "k": 1.5 },
+      { "id": "foot", "name": "Foot valve with strainer", "k": 2.5 }
+    ]
+  },
+  "velocityLimits": { "suctionMax": 1.5, "dischargeMax": 3.0 },
+  "npshMarginM": 1.0
+}

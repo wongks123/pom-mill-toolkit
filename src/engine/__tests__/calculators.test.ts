@@ -11,6 +11,7 @@ import { massBalance, oerFromBunch, oilLoss } from '../process'
 import { convert, convertTemperature } from '../units'
 import { conveyorSizing, loadFromMill, sprocketPcd } from '../conveyor'
 import { buildBackup, parseBackup } from '../../backup/backup'
+import { frictionFactor, pumpAffinity, pumpSystem } from '../pumpSystem'
 import { InputError } from '../types'
 
 /** Asserts |actual − expected| ≤ 0.5% of expected (docs/test-cases.md tolerance). */
@@ -218,6 +219,51 @@ describe('T19 Scraper conveyor from drawing design (TBS/FR4 FFB conveyor)', () =
     near(r.speedMs, 0.3213)
     near(r.maxCapacityTph ?? 0, 72.61)
     near(r.loadingPct ?? 0, 49.58)
+  })
+})
+
+describe('T20 Pump head & power (system)', () => {
+  const base = { density: 1000, viscosity: 1, vapourKPa: 4.25, pumpLevelM: 0, pumpEffPct: 75, motorEffPct: 90, motorMargin: 1.15 }
+  it('reference case: 100 m³/h, 0.5 → 3.5 bar g, 10 m lift, 12 m loss', () => {
+    const r = pumpSystem({ ...base, flowM3h: 100, suctionBarg: 0.5, dischargeBarg: 3.5, suctionLevelM: 0, dischargeLevelM: 10, lossMode: 'given', lossM: 12 }).values
+    near(r.headM, 52.581)
+    near(r.hydraulicKw, 14.328)
+    near(r.shaftKw, 19.104)
+    near(r.motorInputKw, 21.227)
+    expect(r.motorKw).toBe(22)
+  })
+  it('water 30 m³/h through 4" suction and 3" discharge (Darcy–Weisbach)', () => {
+    const r = pumpSystem({
+      ...base, density: 996, viscosity: 0.8, pumpEffPct: 70, flowM3h: 30, suctionBarg: 0, dischargeBarg: 0, suctionLevelM: 2, dischargeLevelM: 15,
+      lossMode: 'pipes', roughnessMm: 0.045,
+      suction: { idMm: 102.3, lengthM: 5, sumK: 0.5 + 0.75 + 0.15 + 2 },
+      discharge: { idMm: 77.9, lengthM: 50, sumK: 1 + 6 * 0.75 + 0.15 + 2 },
+    }).values
+    near(r.dischargeVelocity ?? 0, 1.7485)
+    near(r.suctionLossM, 0.2281)
+    near(r.dischargeLossM, 3.1534)
+    near(r.headM, 16.381)
+    near(r.shaftKw, 1.9055)
+    near(r.npshaM, 11.707)
+  })
+  it('laminar friction factor and zero-flow loss', () => {
+    near(frictionFactor(1000, 0.0001), 0.064)
+    const r = pumpSystem({ ...base, flowM3h: 0, suctionBarg: 0, dischargeBarg: 0, suctionLevelM: 0, dischargeLevelM: 5, lossMode: 'pipes', roughnessMm: 0.045, suction: { idMm: 100, lengthM: 5, sumK: 1 }, discharge: { idMm: 80, lengthM: 20, sumK: 3 } }).values
+    expect(r.lossM).toBe(0)
+  })
+  it('hot water near boiling warns about NPSH', () => {
+    const r = pumpSystem({ ...base, density: 965, viscosity: 0.32, vapourKPa: 70.1, flowM3h: 20, suctionBarg: 0, dischargeBarg: 0, suctionLevelM: 0, dischargeLevelM: 10, pumpLevelM: 1, lossMode: 'given', lossM: 3 })
+    expect(r.values.npshaM).toBeLessThan(3)
+    expect(r.warnings.some((w) => w.includes('NPSH'))).toBe(true)
+  })
+})
+
+describe('T21 Pump affinity laws', () => {
+  it('1450 → 1200 rpm', () => {
+    const r = pumpAffinity({ flowM3h: 30, headM: 30, powerKw: 5, n1: 1450, n2: 1200 }).values
+    near(r.flowM3h, 24.828)
+    near(r.headM, 20.547)
+    near(r.powerKw, 2.834)
   })
 })
 

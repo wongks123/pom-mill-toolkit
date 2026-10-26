@@ -23,5 +23,7 @@ All expected values are already corrected. Tolerance is ±0.5%. Implemented in `
 | T17 | Chain elevator | Nut 10 t/h, 10 L buckets, pitch 0.4 m, φ 0.75, H 14 m | v 0.228 m/s; shaft 0.763 kW; motor 1.5 kW |
 | T18 | Screw, standard size | Ø500 (pitch 380, flight Ø485, pipe Ø75), kernel 10 t/h, L 20 m; and at a given 30 rpm | 9.32 rpm; shaft 1.57 kW; at 30 rpm: capacity 32.2 t/h, loading 14% |
 | T19 | Scraper, drawing design | TBS/FR4 FFB conveyor: flight 1090 × 160, φ 0.6, 21T × 152.4 (PCD 1022.6), FFB 60 t/h, L 20 m; and at 6 rpm | v 0.266 m/s; 4.96 rpm; shaft 3.05 kW; at 6 rpm: 72.6 t/h, fill 50% |
+| T20 | Pump head & power | Reference: 100 m³/h, 0.5 → 3.5 bar g, Δz 10 m, hL 12 m, ρ 1000, ηp 75%, ηm 90%; and water 30 m³/h, 4" suction 5 m, 3" discharge 50 m, lift 13 m | H 52.58 m; 14.33 / 19.10 / 21.23 kW. Pipes: H 16.38 m; shaft 1.91 kW; NPSHa 11.7 m |
+| T21 | Pump affinity | 30 m³/h, 30 m, 5 kW, 1450 → 1200 rpm | 24.8 m³/h; 20.5 m; 2.83 kW |
 
-T14–T19 are not from the pocketbook; they are hand-checked against the formulas in `src/engine/conveyor.ts` and the [REVIEW] constants in `src/data/conveyors.json`.
+T14–T21 are not from the pocketbook; they are hand-checked against the formulas in `src/engine/conveyor.ts` and the [REVIEW] constants in `src/data/conveyors.json`.

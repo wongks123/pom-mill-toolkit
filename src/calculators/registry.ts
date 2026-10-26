@@ -8,14 +8,34 @@ import { motorAmps, motorSpeed, pfCorrection, startingCurrent } from '../engine/
 import { GallonType, pipeVelocity, pumpEfficiency, pumpPowerImperial, pumpPowerSI } from '../engine/pumping'
 import { massBalance, oerFromBunch, oerKerFromProduction, oilLoss, pressCakeCheck } from '../engine/process'
 import { productionCost } from '../engine/cost'
+import { PIPE_MATERIALS, PUMP_FLUIDS, STRAINERS, pumpAffinity, pumpSystem, type PumpSystemInput } from '../engine/pumpSystem'
+import pipeData from '../data/pipeSizes.json'
+import fittingData from '../data/pumpSystem.json'
 import { CHAIN_PITCH_MM, CONVEYOR_MATERIALS, CONVEYOR_TYPES, SCRAPER_DESIGNS, SCREW_SIZES, SPROCKET_TEETH, conveyorSizing, loadFromMill, sprocketPcd } from '../engine/conveyor'
 import oilLossData from '../data/oilLosses.json'
 import pressCakeData from '../data/pressCakeTargets.json'
 import startingMethods from '../data/startingMethods.json'
 import type { CalcDef, InputDef } from './types'
-import { ConveyorExtra, CostExtra, OilLossExtra, PfTableExtra, SterilisationExtra } from './extras'
+import { ConveyorExtra, PumpSystemExtra, CostExtra, OilLossExtra, PfTableExtra, SterilisationExtra } from './extras'
 
 const CUSTOM = 99
+const PIPES = pipeData.rows
+
+/** Maps the pump-system form values to the engine input (also used by the system-curve chart). */
+function pumpInput(v: Record<string, number>): PumpSystemInput {
+  const fluid = v.fluid === CUSTOM ? { density: v.rho, viscosity: v.mu, vapourKPa: v.pv } : PUMP_FLUIDS[v.fluid]
+  const k = fittingData.fittingK
+  const pipes = v.lossMode !== 1
+  return {
+    flowM3h: v.Q, density: fluid.density, viscosity: fluid.viscosity, vapourKPa: fluid.vapourKPa,
+    suctionBarg: v.ps, dischargeBarg: v.pd, suctionLevelM: v.zs, dischargeLevelM: v.zd, pumpLevelM: v.zp,
+    lossMode: pipes ? 'pipes' : 'given', lossM: v.loss,
+    roughnessMm: PIPE_MATERIALS[v.mat]?.roughnessMm,
+    suction: pipes ? { idMm: PIPES[v.sPipe].idMm, lengthM: v.sLen, sumK: k.entrance + v.sElbow * k.elbow90 + v.sValve * k.gateValve + STRAINERS[v.strainer].k } : undefined,
+    discharge: pipes ? { idMm: PIPES[v.dPipe].idMm, lengthM: v.dLen, sumK: k.exit + v.dElbow * k.elbow90 + v.dGate * k.gateValve + v.dCheck * k.checkValve + v.dGlobe * k.globeValve } : undefined,
+    pumpEffPct: v.effP, motorEffPct: v.effM, motorMargin: v.margin,
+  }
+}
 const capacity: InputDef = { key: 'capacityTph', label: 'Mill capacity', unit: 't FFB/h', default: 45, typical: [10, 120], project: 'capacityTph' }
 const gallonOpt: InputDef = { key: 'gallon', label: 'Gallon type', default: 0, options: [{ value: 0, label: 'Imperial (constant 3,300)' }, { value: 1, label: 'US (constant 3,960)' }] }
 const gallon = (v: number): GallonType => (v === 1 ? 'us' : 'imperial')
@@ -625,6 +645,105 @@ export const CALCULATORS: CalcDef[] = [
     },
   },
   // ---------- Pumping ----------
+  {
+    id: 'pumpsystem',
+    category: 'pumping',
+    title: 'Pump head & power (system)',
+    purpose: 'Total head, power and motor size for a pump moving a mill fluid from one tank to another, with pipe friction, fittings and an NPSH check.',
+    source: 'Steady-flow energy balance with Darcy–Weisbach friction (Swamee–Jain). Not in the MPOB Pocketbook. [REVIEW] fluid properties and fitting K values.',
+    formula: [
+      'H = (Pd − Ps)/(ρg) + (zd − zs) + hL   (tank surface to tank surface)',
+      'hL = Σ (f·L/D + ΣK)·v²/2g;  f = 64/Re or Swamee–Jain',
+      'Hydraulic P = ρ·g·Q·H;  Shaft = P/ηp;  Motor input = Shaft/ηm',
+      'NPSHa = (Ps + Patm − Pv)/(ρg) + (zs − zpump) − hL,suction',
+    ],
+    inputs: [
+      { key: 'fluid', label: 'Fluid', default: 0, options: [...PUMP_FLUIDS.map((f, k) => ({ value: k, label: f.name })), { value: CUSTOM, label: 'Custom fluid (enter below)' }] },
+      { key: 'rho', label: 'Density', unit: 'kg/m³', default: 1000, typical: [700, 1300], showIf: (v) => v.fluid === CUSTOM },
+      { key: 'mu', label: 'Viscosity', unit: 'mPa·s (cP)', default: 1, typical: [0.2, 500], showIf: (v) => v.fluid === CUSTOM },
+      { key: 'pv', label: 'Vapour pressure', unit: 'kPa abs', default: 4.25, allowZero: true, typical: [0, 150], showIf: (v) => v.fluid === CUSTOM },
+      { key: 'Q', label: 'Flow rate', unit: 'm³/h', default: 30, typical: [1, 500] },
+      { key: 'ps', label: 'Suction tank pressure', unit: 'bar g', default: 0, allowZero: true, typical: [0, 10], hint: '0 = open tank' },
+      { key: 'zs', label: 'Suction liquid level', unit: 'm', default: 2, allowZero: true, typical: [0, 30], hint: 'Height above floor / lowest point' },
+      { key: 'zp', label: 'Pump centreline', unit: 'm', default: 0, allowZero: true, typical: [0, 30] },
+      { key: 'pd', label: 'Discharge tank pressure', unit: 'bar g', default: 0, allowZero: true, typical: [0, 20], hint: '0 = open tank' },
+      { key: 'zd', label: 'Discharge level / outlet', unit: 'm', default: 15, allowZero: true, typical: [0, 60] },
+      { key: 'lossMode', label: 'Pipe losses', default: 0, options: [{ value: 0, label: 'Calculate from pipes and fittings' }, { value: 1, label: 'I know the total loss (m)' }] },
+      { key: 'loss', label: 'Total head loss', unit: 'm', default: 5, allowZero: true, typical: [0, 50], showIf: (v) => v.lossMode === 1 },
+      { key: 'mat', label: 'Pipe material', default: 0, options: PIPE_MATERIALS.map((m, k) => ({ value: k, label: `${m.name} (ε ${m.roughnessMm} mm)` })), showIf: (v) => v.lossMode !== 1 },
+      { key: 'sPipe', label: 'Suction pipe size', default: 5, options: PIPES.map((p, k) => ({ value: k, label: `${p.nps} (DN${p.dn}, ID ${p.idMm})` })), showIf: (v) => v.lossMode !== 1 },
+      { key: 'sLen', label: 'Suction pipe length', unit: 'm', default: 5, allowZero: true, typical: [0, 50], showIf: (v) => v.lossMode !== 1 },
+      { key: 'sElbow', label: 'Suction 90° elbows', default: 1, step: 1, allowZero: true, typical: [0, 10], showIf: (v) => v.lossMode !== 1 },
+      { key: 'sValve', label: 'Suction isolating valves', default: 1, step: 1, allowZero: true, typical: [0, 5], showIf: (v) => v.lossMode !== 1 },
+      { key: 'strainer', label: 'Suction strainer', default: 1, options: STRAINERS.map((x, k) => ({ value: k, label: x.name })), showIf: (v) => v.lossMode !== 1 },
+      { key: 'dPipe', label: 'Discharge pipe size', default: 4, options: PIPES.map((p, k) => ({ value: k, label: `${p.nps} (DN${p.dn}, ID ${p.idMm})` })), showIf: (v) => v.lossMode !== 1 },
+      { key: 'dLen', label: 'Discharge pipe length', unit: 'm', default: 50, allowZero: true, typical: [0, 500], showIf: (v) => v.lossMode !== 1 },
+      { key: 'dElbow', label: 'Discharge 90° elbows', default: 6, step: 1, allowZero: true, typical: [0, 30], showIf: (v) => v.lossMode !== 1 },
+      { key: 'dGate', label: 'Discharge gate / ball valves', default: 1, step: 1, allowZero: true, typical: [0, 10], showIf: (v) => v.lossMode !== 1 },
+      { key: 'dCheck', label: 'Check (non-return) valves', default: 1, step: 1, allowZero: true, typical: [0, 3], showIf: (v) => v.lossMode !== 1 },
+      { key: 'dGlobe', label: 'Globe / control valves', default: 0, step: 1, allowZero: true, typical: [0, 3], showIf: (v) => v.lossMode !== 1 },
+      { key: 'effP', label: 'Pump efficiency', unit: '%', default: 70, max: 100, typical: [40, 85], hint: 'From pump curve; 60–75% typical' },
+      { key: 'effM', label: 'Motor efficiency', unit: '%', default: 90, max: 100, typical: [80, 96] },
+      {
+        key: 'margin', label: 'Motor power margin', default: 1.15, hint: 'Motor ≥ shaft power × margin',
+        options: [{ value: 1.1, label: '+10% – large pumps (> 22 kW)' }, { value: 1.15, label: '+15% – normal' }, { value: 1.25, label: '+25% – small pumps, viscous oil, sludge' }],
+      },
+    ],
+    compute: (v) => {
+      const input = pumpInput(v)
+      const r = pumpSystem(input)
+      const x = r.values
+      return {
+        primary: { label: 'Total dynamic head', value: x.headM, unit: 'm', digits: 2 },
+        outputs: [
+          { label: 'Hydraulic power', value: x.hydraulicKw, unit: 'kW', digits: 2 },
+          { label: 'Pump shaft power', value: x.shaftKw, unit: 'kW', digits: 2 },
+          { label: 'Motor input power', value: x.motorInputKw, unit: 'kW', digits: 2 },
+          { label: 'Selected motor', value: x.motorKw, unit: 'kW', digits: 2 },
+          { label: 'NPSH available', value: x.npshaM, unit: 'm', digits: 2 },
+          { label: 'Total pipe losses', value: x.lossM, unit: 'm', digits: 2 },
+          ...(x.suctionVelocity !== undefined ? [
+            { label: 'Suction velocity', value: x.suctionVelocity, unit: 'm/s', digits: 2 },
+            { label: 'Discharge velocity', value: x.dischargeVelocity ?? 0, unit: 'm/s', digits: 2 },
+          ] : []),
+        ],
+        steps: r.steps,
+        warnings: r.warnings,
+        data: { input, values: x },
+      }
+    },
+    Extra: PumpSystemExtra,
+  },
+  {
+    id: 'pumpaffinity',
+    category: 'pumping',
+    title: 'Pump speed change (affinity laws)',
+    purpose: 'New flow, head and power when a pump runs at a different speed (VSD or pulley change) or with a trimmed impeller.',
+    source: 'Pump affinity laws. Not in the MPOB Pocketbook.',
+    formula: ['Q₂ = Q₁ × (N₂/N₁)', 'H₂ = H₁ × (N₂/N₁)²', 'P₂ = P₁ × (N₂/N₁)³', 'For impeller trim use diameters D₂/D₁ in place of speeds (approximate).'],
+    inputs: [
+      { key: 'Q', label: 'Present flow', unit: 'm³/h', default: 30, typical: [1, 500] },
+      { key: 'H', label: 'Present head', unit: 'm', default: 30, typical: [2, 150] },
+      { key: 'P', label: 'Present shaft power', unit: 'kW', default: 5, typical: [0.2, 200] },
+      { key: 'n1', label: 'Present speed (or impeller Ø)', unit: 'rpm', default: 1450, typical: [100, 3600] },
+      { key: 'n2', label: 'New speed (or impeller Ø)', unit: 'rpm', default: 1200, typical: [100, 3600] },
+    ],
+    compute: (v) => {
+      const r = pumpAffinity({ flowM3h: v.Q, headM: v.H, powerKw: v.P, n1: v.n1, n2: v.n2 })
+      const x = r.values
+      return {
+        primary: { label: 'New shaft power', value: x.powerKw, unit: 'kW', digits: 2 },
+        outputs: [
+          { label: 'Speed ratio', value: x.ratio, unit: '', digits: 3 },
+          { label: 'New flow', value: x.flowM3h, unit: 'm³/h', digits: 1 },
+          { label: 'New head', value: x.headM, unit: 'm', digits: 1 },
+          { label: 'Power saved', value: (1 - x.ratio ** 3) * 100, unit: '%', digits: 0 },
+        ],
+        steps: r.steps,
+        warnings: r.warnings,
+      }
+    },
+  },
   {
     id: 'pipevelocity',
     category: 'pumping',
