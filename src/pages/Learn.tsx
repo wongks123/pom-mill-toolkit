@@ -40,7 +40,16 @@ function MillFlow() {
         const y1 = sameRow ? a.y + BOX_H / 2 : a.y + BOX_H
         const x2 = sameRow ? (b.x > a.x ? b.x : b.x + BOX_W) : b.x + BOX_W / 2
         const y2 = sameRow ? b.y + BOX_H / 2 : b.y
-        return <line key={s.id} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#78716c" strokeWidth={1.5} markerEnd="url(#arr)" />
+        return (
+          <g key={s.id}>
+            <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#78716c" strokeWidth={1.5} markerEnd="url(#arr)" />
+            {[0, 1].map((j) => (
+              <circle key={j} r={2.6} fill="#ea580c">
+                <animateMotion path={`M${x1} ${y1} L${x2} ${y2}`} dur="1.8s" begin={`${-0.9 * j - k * 0.2}s`} repeatCount="indefinite" />
+              </circle>
+            ))}
+          </g>
+        )
       })}
       {stations.map((s, k) => {
         const p = pos(k)
@@ -81,7 +90,7 @@ export default function Learn() {
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-bold text-palm-900">How a palm oil mill works</h1>
-        <p className="text-stone-600">Tap a station to learn what it does, what to measure, what goes wrong, and to test yourself.</p>
+        <p className="text-stone-600">Tap a station to see it working step by step, learn what to measure and what goes wrong, and test yourself.</p>
       </header>
       <section className="flex justify-center rounded-xl bg-white p-3 shadow-sm">
         <MillFlow />

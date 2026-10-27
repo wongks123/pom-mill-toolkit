@@ -4,6 +4,7 @@ import stationsData from '../data/stations.json'
 import { getCalculator } from '../calculators/registry'
 import { ReviewBadge } from '../components/ReviewBadge'
 import NotFound from './NotFound'
+import { StationAnimation } from '../learn/StationAnimation'
 
 type Station = (typeof stationsData.stations)[number]
 const sorted = [...stationsData.stations].sort((a, b) => a.order - b.order)
@@ -69,9 +70,7 @@ export default function StationPage() {
 
       <section className="rounded-xl bg-white p-4 shadow-sm">
         <h2 className="mb-2 font-semibold">How it works</h2>
-        <ol className="list-decimal space-y-1 pl-5 text-stone-700">
-          {s.howItWorks.map((h, k) => <li key={k}>{h}</li>)}
-        </ol>
+        <StationAnimation stationId={s.id} steps={s.howItWorks} />
       </section>
 
       <div className="grid gap-4 md:grid-cols-2">
