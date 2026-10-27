@@ -46,7 +46,7 @@ export function StationAnimation({ stationId, steps }: { stationId: string; step
   return (
     <div className="space-y-3">
       <div className="overflow-hidden rounded-lg border border-stone-200 bg-gradient-to-b from-white to-palm-50">
-        <svg ref={svgRef} viewBox="0 0 360 220" className="block w-full" role="img" aria-label={`Animated drawing. Step ${step + 1}: ${steps[step]}`}>
+        <svg ref={svgRef} viewBox={`0 0 360 ${ill.height ?? 220}`} className="block w-full" role="img" aria-label={`Animated drawing. Step ${step + 1}: ${steps[step]}`}>
           <ill.Art />
           <rect key={step} x={ax} y={ay} width={aw} height={ah} rx="10" fill="#ea580c" fillOpacity="0.08" stroke="#ea580c" strokeWidth="2" strokeDasharray="6 4">
             <animate attributeName="stroke-dashoffset" from="20" to="0" dur="1s" repeatCount="indefinite" />
