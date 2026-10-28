@@ -12,6 +12,7 @@ import { convert, convertTemperature } from '../units'
 import { conveyorSizing, loadFromMill, sprocketPcd } from '../conveyor'
 import { buildBackup, parseBackup } from '../../backup/backup'
 import { frictionFactor, pumpAffinity, pumpSystem } from '../pumpSystem'
+import { co2DeepSeated, fireAlarmBattery, fireInternalDiameter, firePumpHead, fireWaterStorage, fittingEquivalentLength, sprinklerPipeLoss, sprinklerRequirement } from '../fire'
 import { InputError } from '../types'
 
 /** Asserts |actual − expected| ≤ 0.5% of expected (docs/test-cases.md tolerance). */
@@ -264,6 +265,98 @@ describe('T21 Pump affinity laws', () => {
     near(r.flowM3h, 24.828)
     near(r.headM, 20.547)
     near(r.powerKw, 2.834)
+  })
+})
+
+describe('T22 Fire water storage (iTake WT Storage sheet)', () => {
+  it('3 hydrants × 1362 L/min × 60 min, 9 hose reels, Light Hazard sprinklers at 20 m', () => {
+    const r = fireWaterStorage({ hydrantFlowLpm: 1362, durationMin: 60, hydrantsSimultaneous: 3, hoseReels: 9, sprinklerHazard: 0, sprinklerHeightM: 20 }).values
+    expect(r.hydrantM3).toBe(246)
+    near(r.hoseReelM3, 9.1)
+    expect(r.sprinklerM3).toBe(10)
+    near(r.totalM3, 265.1)
+  })
+  it('hose reel tank 2.44 m cube effective volume', () => {
+    const r = fireWaterStorage({ hydrantFlowLpm: 1362, durationMin: 60, hydrantsSimultaneous: 1, hoseReels: 5, sprinklerHazard: -1, sprinklerHeightM: 0, tankHm: 2.44, tankWm: 2.44, tankDm: 2.44, suctionPipeM: 0.1, lowLevelM: 0.1, headroomM: 0.2 }).values
+    near(r.effectiveM3 ?? 0, 12.145)
+    near(r.hoseReelM3, 6.825)
+  })
+})
+
+describe('T23 Hose reel pump (iTake hose reel sheet)', () => {
+  it('120 L/min, ID 50.8, C 120, 215 m + 58.28 m fittings, 8.5 m, 2 bar, +10%', () => {
+    const r = firePumpHead({ flowLpm: 120, residualBar: 2, staticM: 8.5, pipeLengthM: 215, fittingsEqM: 58.28, idMm: 50.8, method: 'hazen', hazenC: 120, roughnessMm: 0.15, safetyPct: 10, pumpEffPct: 65, motorEffPct: 85 }).values
+    near(r.velocity, 0.9867)
+    near(r.frictionPerM, 0.03031)
+    near(r.designHeadM, 40.90)
+    expect(r.motorKw).toBe(1.5)
+  })
+  it('pipe and fitting tables', () => {
+    expect(fireInternalDiameter('giB', 50)).toBe(52.5)
+    expect(fireInternalDiameter('mscl', 150)).toBe(149.1)
+    expect(fittingEquivalentLength(50, 'y45')).toBe(7.41)
+    expect(fittingEquivalentLength(80, 'elbow')).toBe(2.29)
+  })
+})
+
+describe('T24 Pressurised hydrant pump (corrected method)', () => {
+  it('3 × 1362 L/min, MSCL DN150, C 140, 100 m + fittings 173.31 m, 3 m static, 4 bar, +20%', () => {
+    const r = firePumpHead({ flowLpm: 4086, residualBar: 4, staticM: 3, pipeLengthM: 100, fittingsEqM: 173.31, idMm: 149.1, method: 'hazen', hazenC: 140, roughnessMm: 0.3, safetyPct: 20, pumpEffPct: 65, motorEffPct: 85 }).values
+    near(r.velocity, 3.9003)
+    near(r.frictionPerM, 0.082735)
+    near(r.headM, 66.400)
+    near(r.designHeadM, 79.680)
+    expect(r.motorKw).toBe(110)
+  })
+})
+
+describe('T25 Sprinkler (Guide to Fire Protection in Malaysia table; MS 1910 pre-calc)', () => {
+  it('OH Group I at 20 m height', () => {
+    const r = sprinklerRequirement(1, 20).values
+    expect(r.heightClass).toBe(30)
+    expect(r.flowLpm).toBe(1150)
+    expect(r.pressureBar).toBe(1.9)
+    expect(r.storageM3).toBe(70)
+  })
+  it('design point A loss 451.4 mbar', () => {
+    const r = sprinklerPipeLoss([
+      { dn: 65, lengthM: 4, turns: 0, lossMbarPerM: 35 }, { dn: 80, lengthM: 8, turns: 0, lossMbarPerM: 16 },
+      { dn: 100, lengthM: 8, turns: 0, lossMbarPerM: 4.4 }, { dn: 150, lengthM: 189, turns: 13, lossMbarPerM: 0.65 },
+    ], 3).values
+    near(r.totalMbar, 451.4)
+  })
+})
+
+describe('T26 Fire alarm battery (iTake battery sheet)', () => {
+  it('72 h standby, 1 h alarm, +10% → 24 Ah', () => {
+    const r = fireAlarmBattery({ panel: 1, spka: 1, zone: 24, bell: 18, pump: 2, co2: 4, device: 8 }, 72, 1, 10).values
+    near(r.standbyA, 0.2)
+    near(r.alarmA, 3.68)
+    near(r.minimumAh, 18.08)
+    near(r.requiredAh, 19.888)
+    expect(r.selectedAh).toBe(24)
+  })
+})
+
+describe('T27 CO2 deep-seated (iTake CO2 sheet)', () => {
+  it('Switch room 1: 3.472 × 3.73 × 3.4 m', () => {
+    const r = co2DeepSeated({ lengthM: 3.472, widthM: 3.73, heightM: 3.4, factorOverride: 0, safetyPct: 10, cylinderKg: 45, nozzles: 2, distanceM: 50 }).values
+    near(r.volumeM3, 44.032)
+    expect(r.factor).toBe(1.6)
+    near(r.requiredKg, 77.496)
+    expect(r.cylinders).toBe(2)
+    near(r.flowKgMin, 27)
+    near(r.perNozzleKgMin, 13.5)
+    expect(r.branches).toBe(2)
+    expect(r.pipes.map((p) => p.dnMm)).toEqual([15, 15])
+  })
+  it('Utility room above 56.6 m³ uses 1.33 automatically', () => {
+    const r = co2DeepSeated({ lengthM: 4.55, widthM: 3.73, heightM: 3.4, factorOverride: 0, safetyPct: 10, cylinderKg: 45, nozzles: 2, distanceM: 50 }).values
+    expect(r.factor).toBe(1.33)
+    expect(r.cylinders).toBe(2)
+    const forced = co2DeepSeated({ lengthM: 4.55, widthM: 3.73, heightM: 3.4, factorOverride: 1.6, safetyPct: 10, cylinderKg: 45, nozzles: 2, distanceM: 50 }).values
+    expect(forced.cylinders).toBe(3)
+    expect(forced.pipes[0].dnMm).toBe(20)
   })
 })
 

@@ -25,5 +25,11 @@ All expected values are already corrected. Tolerance is ±0.5%. Implemented in `
 | T19 | Scraper, drawing design | TBS/FR4 FFB conveyor: flight 1090 × 160, φ 0.6, 21T × 152.4 (PCD 1022.6), FFB 60 t/h, L 20 m; and at 6 rpm | v 0.266 m/s; 4.96 rpm; shaft 3.05 kW; at 6 rpm: 72.6 t/h, fill 50% |
 | T20 | Pump head & power | Reference: 100 m³/h, 0.5 → 3.5 bar g, Δz 10 m, hL 12 m, ρ 1000, ηp 75%, ηm 90%; and water 30 m³/h, 4" suction 5 m, 3" discharge 50 m, lift 13 m | H 52.58 m; 14.33 / 19.10 / 21.23 kW. Pipes: H 16.38 m; shaft 1.91 kW; NPSHa 11.7 m |
 | T21 | Pump affinity | 30 m³/h, 30 m, 5 kW, 1450 → 1200 rpm | 24.8 m³/h; 20.5 m; 2.83 kW |
+| T22 | Fire water storage | 3 × 1362 L/min × 60 min; 9 hose reels; LH sprinklers at 20 m; HR tank 2.44 m cube | 246 + 9.1 + 10 = 265.1 m³; tank effective 12.15 m³ |
+| T23 | Hose reel pump | 120 L/min, ID 50.8, C 120, 273.28 m equivalent, 8.5 m, 2 bar, +10% | 0.0303 m/m; design head 40.9 m; 1.5 kW |
+| T24 | Hydrant pump (corrected) | 4086 L/min, MSCL DN150, C 140, 100 m + 173.31 m fittings, 3 m, 4 bar, +20% | 3.90 m/s; 66.4 m; design 79.7 m; 110 kW motor |
+| T25 | Sprinkler | OH Group I at 20 m; design point A (DN65/80/100/150) | 1150 L/min, 1.9 bar, 70 m³; 451.4 mbar |
+| T26 | Fire alarm battery | Sheet quantities, 72 h + 1 h, +10% | 18.08 Ah → 19.89 Ah → 24 Ah |
+| T27 | CO₂ deep-seated | Switch room 1 (44.0 m³); utility room (57.7 m³) | 77.5 kg, 2 × 45 kg, 27 kg/min, DN15/15; utility room 1.33 kg/m³ → 2 cylinders |
 
-T14–T21 are not from the pocketbook; they are hand-checked against the formulas in `src/engine/conveyor.ts` and the [REVIEW] constants in `src/data/conveyors.json`.
+T14–T27 are not from the pocketbook. T14–T21 are hand-checked against `src/engine/conveyor.ts` and `src/engine/pumpSystem.ts` with the [REVIEW] constants in `src/data/`. T22–T27 reproduce the iTake fire-fighting (BOMBA) spreadsheets; T24 uses the corrected hydrant method (static head and fitting lengths added, not multiplied by friction per metre).

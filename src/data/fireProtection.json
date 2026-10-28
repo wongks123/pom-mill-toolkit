@@ -1,0 +1,882 @@
+{
+ "title": "Fire protection (BOMBA) design data",
+ "source": "iTake fire fighting system calculation templates (master copy, hose reel, sprinkler, battery, CO2 deep-seated). Guide to Fire Protection in Malaysia / MS 1489, MS 1910 as referenced in the sheets.",
+ "waterHeadPerBar": 10.197,
+ "waterViscosityPaS": 0.001002,
+ "equivalentLengthM": [
+  {
+   "dn": 10,
+   "elbow": 0.43,
+   "tee": 0.82,
+   "gate": 0.18,
+   "check": 1.52,
+   "globe": 5.18,
+   "y60": 2.46,
+   "y45": 1.96,
+   "angle": 1.96
+  },
+  {
+   "dn": 15,
+   "elbow": 0.49,
+   "tee": 0.91,
+   "gate": 0.21,
+   "check": 1.83,
+   "globe": 5.49,
+   "y60": 2.81,
+   "y45": 2.25,
+   "angle": 2.25
+  },
+  {
+   "dn": 20,
+   "elbow": 0.61,
+   "tee": 1.22,
+   "gate": 0.27,
+   "check": 2.44,
+   "globe": 6.71,
+   "y60": 3.6,
+   "y45": 2.88,
+   "angle": 2.88
+  },
+  {
+   "dn": 25,
+   "elbow": 0.79,
+   "tee": 1.52,
+   "gate": 0.3,
+   "check": 3.05,
+   "globe": 8.84,
+   "y60": 4.6,
+   "y45": 3.68,
+   "angle": 3.68
+  },
+  {
+   "dn": 32,
+   "elbow": 1.01,
+   "tee": 2.13,
+   "gate": 0.46,
+   "check": 4.27,
+   "globe": 11.58,
+   "y60": 6.23,
+   "y45": 4.97,
+   "angle": 4.97
+  },
+  {
+   "dn": 40,
+   "elbow": 1.22,
+   "tee": 2.44,
+   "gate": 0.55,
+   "check": 4.88,
+   "globe": 13.11,
+   "y60": 7.29,
+   "y45": 5.82,
+   "angle": 5.82
+  },
+  {
+   "dn": 50,
+   "elbow": 1.52,
+   "tee": 3.05,
+   "gate": 0.7,
+   "check": 6.1,
+   "globe": 16.76,
+   "y60": 9.28,
+   "y45": 7.41,
+   "angle": 7.41
+  },
+  {
+   "dn": 65,
+   "elbow": 1.83,
+   "tee": 3.66,
+   "gate": 0.85,
+   "check": 7.62,
+   "globe": 21.03,
+   "y60": 11.26,
+   "y45": 9,
+   "angle": 9
+  },
+  {
+   "dn": 75,
+   "elbow": 2.29,
+   "tee": 4.57,
+   "gate": 0.98,
+   "check": 9.14,
+   "globe": 25.6,
+   "y60": 13.69,
+   "y45": 10.94,
+   "angle": 10.94
+  },
+  {
+   "dn": 90,
+   "elbow": 2.74,
+   "tee": 5.49,
+   "gate": 1.22,
+   "check": 10.67,
+   "globe": 30.48,
+   "y60": 16.3,
+   "y45": 13.02,
+   "angle": 13.02
+  },
+  {
+   "dn": 100,
+   "elbow": 3.05,
+   "tee": 6.4,
+   "gate": 1.37,
+   "check": 12.19,
+   "globe": 36.58,
+   "y60": 18.6,
+   "y45": 14.86,
+   "angle": 14.86
+  },
+  {
+   "dn": 125,
+   "elbow": 3.96,
+   "tee": 7.62,
+   "gate": 1.83,
+   "check": 15.24,
+   "globe": 42.67,
+   "y60": 23.26,
+   "y45": 18.58,
+   "angle": 18.58
+  },
+  {
+   "dn": 150,
+   "elbow": 4.88,
+   "tee": 9.14,
+   "gate": 2.13,
+   "check": 18.29,
+   "globe": 51.82,
+   "y60": 27.99,
+   "y45": 22.36,
+   "angle": 22.36
+  },
+  {
+   "dn": 200,
+   "elbow": 6.1,
+   "tee": 12.19,
+   "gate": 2.74,
+   "check": 24.38,
+   "globe": 67.06,
+   "y60": 36.12,
+   "y45": 28.86,
+   "angle": 28.86
+  },
+  {
+   "dn": 250,
+   "elbow": 7.62,
+   "tee": 15.24,
+   "gate": 3.66,
+   "check": 30.48,
+   "globe": 85.34,
+   "y60": 45.92,
+   "y45": 36.68,
+   "angle": 36.68
+  },
+  {
+   "dn": 300,
+   "elbow": 9.14,
+   "tee": 18.29,
+   "gate": 3.96,
+   "check": 36.58,
+   "globe": 97.54,
+   "y60": 53.88,
+   "y45": 43.04,
+   "angle": 43.04
+  },
+  {
+   "dn": 350,
+   "elbow": 10.36,
+   "tee": 20.73,
+   "gate": 4.57,
+   "check": 41.15,
+   "globe": 109.73,
+   "y60": 61.87,
+   "y45": 49.43,
+   "angle": 49.43
+  },
+  {
+   "dn": 400,
+   "elbow": 11.58,
+   "tee": 23.77,
+   "gate": 5.18,
+   "check": 45.72,
+   "globe": 124.97,
+   "y60": 69.94,
+   "y45": 55.88,
+   "angle": 55.88
+  },
+  {
+   "dn": 450,
+   "elbow": 12.8,
+   "tee": 25.91,
+   "gate": 5.79,
+   "check": 50.29,
+   "globe": 140.21,
+   "y60": 78.31,
+   "y45": 62.56,
+   "angle": 62.56
+  },
+  {
+   "dn": 500,
+   "elbow": 15.24,
+   "tee": 30.48,
+   "gate": 6.71,
+   "check": 60.96,
+   "globe": 158.5,
+   "y60": 90.64,
+   "y45": 72.42,
+   "angle": 72.42
+  },
+  {
+   "dn": 600,
+   "elbow": 18.29,
+   "tee": 35.05,
+   "gate": 7.62,
+   "check": 73.15,
+   "globe": 185.93,
+   "y60": 106.06,
+   "y45": 84.74,
+   "angle": 84.74
+  }
+ ],
+ "giPipes": [
+  {
+   "dn": 15,
+   "inch": "½",
+   "odMm": 21,
+   "classCidMm": 14.6,
+   "classBidMm": 15.8
+  },
+  {
+   "dn": 20,
+   "inch": "¾",
+   "odMm": 26.5,
+   "classCidMm": 20.1,
+   "classBidMm": 21.3
+  },
+  {
+   "dn": 25,
+   "inch": "1",
+   "odMm": 33.3,
+   "classCidMm": 25.3,
+   "classBidMm": 26.9
+  },
+  {
+   "dn": 32,
+   "inch": "1 ¼",
+   "odMm": 42,
+   "classCidMm": 34,
+   "classBidMm": 35.6
+  },
+  {
+   "dn": 40,
+   "inch": "1 ½",
+   "odMm": 47.9,
+   "classCidMm": 39.9,
+   "classBidMm": 41.5
+  },
+  {
+   "dn": 50,
+   "inch": "2",
+   "odMm": 59.7,
+   "classCidMm": 50.7,
+   "classBidMm": 52.5
+  },
+  {
+   "dn": 65,
+   "inch": "2½",
+   "odMm": 75.3,
+   "classCidMm": 66.3,
+   "classBidMm": 68.1
+  },
+  {
+   "dn": 80,
+   "inch": "3",
+   "odMm": 88,
+   "classCidMm": 78,
+   "classBidMm": 80
+  },
+  {
+   "dn": 100,
+   "inch": "4",
+   "odMm": 113.1,
+   "classCidMm": 102.3,
+   "classBidMm": 104.1
+  },
+  {
+   "dn": 125,
+   "inch": "5",
+   "odMm": 138.5,
+   "classCidMm": 127.7,
+   "classBidMm": 128.5
+  },
+  {
+   "dn": 150,
+   "inch": "6",
+   "odMm": 163.9,
+   "classCidMm": 153.1,
+   "classBidMm": 153.9
+  }
+ ],
+ "msclPipes": [
+  {
+   "dn": 100,
+   "idMm": 93.7
+  },
+  {
+   "dn": 150,
+   "idMm": 149.1
+  },
+  {
+   "dn": 200,
+   "idMm": 204
+  },
+  {
+   "dn": 250,
+   "idMm": 257.8
+  },
+  {
+   "dn": 300,
+   "idMm": 313.8
+  },
+  {
+   "dn": 350,
+   "idMm": 361.7
+  },
+  {
+   "dn": 400,
+   "idMm": 415.5
+  },
+  {
+   "dn": 450,
+   "idMm": 469.4
+  },
+  {
+   "dn": 500,
+   "idMm": 522.7
+  },
+  {
+   "dn": 600,
+   "idMm": 628
+  },
+  {
+   "dn": 650,
+   "idMm": 651.2
+  }
+ ],
+ "pipeMaterials": [
+  {
+   "id": "giB",
+   "name": "GI Class B (medium)",
+   "hazenC": 120,
+   "roughnessMm": 0.15
+  },
+  {
+   "id": "giC",
+   "name": "GI Class C (heavy)",
+   "hazenC": 120,
+   "roughnessMm": 0.15
+  },
+  {
+   "id": "mscl",
+   "name": "MSCL cement-lined (JKR)",
+   "hazenC": 140,
+   "roughnessMm": 0.3
+  }
+ ],
+ "sprinkler": {
+  "note": "Guide to Fire Protection in Malaysia: by hazard class and height of highest sprinkler above lowest (m class 15/30/45).",
+  "hazards": [
+   "Light Hazard",
+   "OH Group I",
+   "OH Group II",
+   "OH Group III",
+   "OH Group IIIS"
+  ],
+  "storageM3": {
+   "Light Hazard": {
+    "15": 9,
+    "30": 10,
+    "45": 11
+   },
+   "OH Group I": {
+    "15": 55,
+    "30": 70,
+    "45": 80
+   },
+   "OH Group II": {
+    "15": 105,
+    "30": 125,
+    "45": 140
+   },
+   "OH Group III": {
+    "15": 135,
+    "30": 160,
+    "45": 185
+   },
+   "OH Group IIIS": {
+    "15": 160,
+    "30": 185
+   }
+  },
+  "flowLpm": {
+   "Light Hazard": {
+    "15": 300,
+    "30": 340,
+    "45": 375
+   },
+   "OH Group I": {
+    "15": 900,
+    "30": 1150,
+    "45": 1360
+   },
+   "OH Group II": {
+    "15": 1750,
+    "30": 2050,
+    "45": 2350
+   },
+   "OH Group III": {
+    "15": 2250,
+    "30": 2700,
+    "45": 3100
+   },
+   "OH Group IIIS": {
+    "15": 2650,
+    "30": 3050
+   }
+  },
+  "pressureBar": {
+   "Light Hazard": {
+    "15": 1.5,
+    "30": 1.8,
+    "45": 2.3
+   },
+   "OH Group I": {
+    "15": 1.2,
+    "30": 1.9,
+    "45": 2.7
+   },
+   "OH Group II": {
+    "15": 1.4,
+    "30": 2,
+    "45": 2.6
+   },
+   "OH Group III": {
+    "15": 1.4,
+    "30": 2,
+    "45": 2.5
+   },
+   "OH Group IIIS": {
+    "15": 1.9,
+    "30": 2.4
+   }
+  },
+  "lossRateMbarPerM": {
+   "65": 35,
+   "80": 16,
+   "100": 4.4,
+   "150": 0.65
+  },
+  "eqLengthPerTurnM": 3
+ },
+ "hoseReel": {
+  "firstReelL": 2275,
+  "additionalReelL": 1137.5,
+  "additionalCapL": 6825
+ },
+ "co2": {
+  "factorSmall": 1.6,
+  "factorLarge": 1.33,
+  "volumeLimitM3": 56.6,
+  "dischargeMin": 7,
+  "concentrationPct": 30,
+  "concentrationMin": 2,
+  "designConcentrationPct": 50,
+  "maxPerNozzleKgMin": 30,
+  "branchesByNozzles": [
+   [
+    1,
+    1
+   ],
+   [
+    2,
+    2
+   ],
+   [
+    4,
+    3
+   ],
+   [
+    8,
+    4
+   ],
+   [
+    16,
+    5
+   ]
+  ],
+  "pipeSizes": [
+   {
+    "fromKgMin": 0,
+    "toKgMin": 0,
+    "a50": 15,
+    "b75": 15,
+    "c100": 15
+   },
+   {
+    "fromKgMin": 0,
+    "toKgMin": 30,
+    "a50": 15,
+    "b75": 15,
+    "c100": 20
+   },
+   {
+    "fromKgMin": 30,
+    "toKgMin": 35,
+    "a50": 15,
+    "b75": 20,
+    "c100": 20
+   },
+   {
+    "fromKgMin": 35,
+    "toKgMin": 40,
+    "a50": 20,
+    "b75": 20,
+    "c100": 20
+   },
+   {
+    "fromKgMin": 40,
+    "toKgMin": 65,
+    "a50": 20,
+    "b75": 20,
+    "c100": 25
+   },
+   {
+    "fromKgMin": 65,
+    "toKgMin": 75,
+    "a50": 20,
+    "b75": 25,
+    "c100": 25
+   },
+   {
+    "fromKgMin": 75,
+    "toKgMin": 85,
+    "a50": 25,
+    "b75": 25,
+    "c100": 25
+   },
+   {
+    "fromKgMin": 85,
+    "toKgMin": 120,
+    "a50": 25,
+    "b75": 25,
+    "c100": 32
+   },
+   {
+    "fromKgMin": 120,
+    "toKgMin": 135,
+    "a50": 25,
+    "b75": 32,
+    "c100": 32
+   },
+   {
+    "fromKgMin": 135,
+    "toKgMin": 155,
+    "a50": 32,
+    "b75": 32,
+    "c100": 32
+   },
+   {
+    "fromKgMin": 155,
+    "toKgMin": 238,
+    "a50": 32,
+    "b75": 32,
+    "c100": 40
+   },
+   {
+    "fromKgMin": 238,
+    "toKgMin": 270,
+    "a50": 32,
+    "b75": 40,
+    "c100": 40
+   },
+   {
+    "fromKgMin": 270,
+    "toKgMin": 300,
+    "a50": 40,
+    "b75": 40,
+    "c100": 40
+   },
+   {
+    "fromKgMin": 300,
+    "toKgMin": 342,
+    "a50": 40,
+    "b75": 40,
+    "c100": 50
+   },
+   {
+    "fromKgMin": 342,
+    "toKgMin": 380,
+    "a50": 40,
+    "b75": 50,
+    "c100": 50
+   },
+   {
+    "fromKgMin": 380,
+    "toKgMin": 420,
+    "a50": 50,
+    "b75": 50,
+    "c100": 50
+   },
+   {
+    "fromKgMin": 420,
+    "toKgMin": 650,
+    "a50": 50,
+    "b75": 50,
+    "c100": 65
+   },
+   {
+    "fromKgMin": 650,
+    "toKgMin": 700,
+    "a50": 50,
+    "b75": 65,
+    "c100": 65
+   },
+   {
+    "fromKgMin": 700,
+    "toKgMin": 760,
+    "a50": 65,
+    "b75": 65,
+    "c100": 65
+   },
+   {
+    "fromKgMin": 760,
+    "toKgMin": 1100,
+    "a50": 65,
+    "b75": 65,
+    "c100": 80
+   },
+   {
+    "fromKgMin": 1100,
+    "toKgMin": 1200,
+    "a50": 65,
+    "b75": 80,
+    "c100": 80
+   },
+   {
+    "fromKgMin": 1200,
+    "toKgMin": 1280,
+    "a50": 80,
+    "b75": 80,
+    "c100": 80
+   },
+   {
+    "fromKgMin": 1280,
+    "toKgMin": 1600,
+    "a50": 80,
+    "b75": 80,
+    "c100": 90
+   },
+   {
+    "fromKgMin": 1600,
+    "toKgMin": 1750,
+    "a50": 80,
+    "b75": 90,
+    "c100": 90
+   },
+   {
+    "fromKgMin": 1750,
+    "toKgMin": 1850,
+    "a50": 90,
+    "b75": 90,
+    "c100": 90
+   },
+   {
+    "fromKgMin": 1850,
+    "toKgMin": 2200,
+    "a50": 90,
+    "b75": 90,
+    "c100": 100
+   },
+   {
+    "fromKgMin": 2200,
+    "toKgMin": 2400,
+    "a50": 90,
+    "b75": 100,
+    "c100": 100
+   },
+   {
+    "fromKgMin": 2400,
+    "toKgMin": 2550,
+    "a50": 100,
+    "b75": 100,
+    "c100": 100
+   },
+   {
+    "fromKgMin": 2550,
+    "toKgMin": 3000,
+    "a50": 100,
+    "b75": 100,
+    "c100": 125
+   },
+   {
+    "fromKgMin": 3000,
+    "toKgMin": 3200,
+    "a50": 100,
+    "b75": 125,
+    "c100": 125
+   },
+   {
+    "fromKgMin": 3200,
+    "toKgMin": 3400,
+    "a50": 125,
+    "b75": 125,
+    "c100": 125
+   },
+   {
+    "fromKgMin": 3400,
+    "toKgMin": 4900,
+    "a50": 125,
+    "b75": 125,
+    "c100": 125
+   },
+   {
+    "fromKgMin": 4900,
+    "toKgMin": 5200,
+    "a50": 125,
+    "b75": 125,
+    "c100": 125
+   },
+   {
+    "fromKgMin": 5200,
+    "toKgMin": 5500,
+    "a50": 125,
+    "b75": 125,
+    "c100": 150
+   },
+   {
+    "fromKgMin": 5500,
+    "toKgMin": 6000,
+    "a50": 125,
+    "b75": 150,
+    "c100": 150
+   },
+   {
+    "fromKgMin": 6000,
+    "toKgMin": 6500,
+    "a50": 150,
+    "b75": 150,
+    "c100": 150
+   },
+   {
+    "fromKgMin": 6500,
+    "toKgMin": 7000,
+    "a50": 150,
+    "b75": 150,
+    "c100": 150
+   },
+   {
+    "fromKgMin": 7000,
+    "toKgMin": 7500,
+    "a50": 150,
+    "b75": 150,
+    "c100": 200
+   },
+   {
+    "fromKgMin": 7500,
+    "toKgMin": 8000,
+    "a50": 150,
+    "b75": 200,
+    "c100": 200
+   },
+   {
+    "fromKgMin": 8000,
+    "toKgMin": 8500,
+    "a50": 200,
+    "b75": 200,
+    "c100": 200
+   },
+   {
+    "fromKgMin": 8500,
+    "toKgMin": 9000,
+    "a50": 200,
+    "b75": 200,
+    "c100": 200
+   },
+   {
+    "fromKgMin": 9000,
+    "toKgMin": 9500,
+    "a50": 200,
+    "b75": 200,
+    "c100": 250
+   },
+   {
+    "fromKgMin": 9500,
+    "toKgMin": 10000,
+    "a50": 200,
+    "b75": 250,
+    "c100": 250
+   }
+  ]
+ },
+ "battery": {
+  "devices": [
+   {
+    "id": "panel",
+    "name": "Main fire alarm panel",
+    "standbyA": 0.075,
+    "alarmA": 0.14
+   },
+   {
+    "id": "spka",
+    "name": "Fire brigade panel (SPKA)",
+    "standbyA": 0.005,
+    "alarmA": 0.02
+   },
+   {
+    "id": "zone",
+    "name": "Zone unit",
+    "standbyA": 0.005,
+    "alarmA": 0.07
+   },
+   {
+    "id": "bell",
+    "name": "Alarm bell",
+    "standbyA": 0,
+    "alarmA": 0.03
+   },
+   {
+    "id": "pump",
+    "name": "Pump monitoring",
+    "standbyA": 0,
+    "alarmA": 0.15
+   },
+   {
+    "id": "co2",
+    "name": "Fixed CO2 system monitoring",
+    "standbyA": 0,
+    "alarmA": 0.15
+   },
+   {
+    "id": "device",
+    "name": "Other devices (modules, call points)",
+    "standbyA": 0,
+    "alarmA": 0.05
+   },
+   {
+    "id": "detector",
+    "name": "Smoke / heat detector",
+    "standbyA": 5e-05,
+    "alarmA": 5e-05
+   }
+  ],
+  "sizesAh": [
+   7,
+   10,
+   12,
+   17,
+   24,
+   40,
+   65,
+   100,
+   120
+  ]
+ }
+}

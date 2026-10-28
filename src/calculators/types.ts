@@ -35,7 +35,7 @@ export interface CalcOutput {
   data?: unknown
 }
 
-export type Category = 'process' | 'steam' | 'mechanical' | 'electrical' | 'pumping' | 'cost'
+export type Category = 'process' | 'steam' | 'mechanical' | 'electrical' | 'pumping' | 'fire' | 'cost'
 
 export interface CalcDef {
   id: string
@@ -58,5 +58,6 @@ export const CATEGORIES: { id: Category; name: string; icon: string }[] = [
   { id: 'mechanical', name: 'Mechanical', icon: '⚙️' },
   { id: 'electrical', name: 'Electrical', icon: '⚡' },
   { id: 'pumping', name: 'Pumping', icon: '💧' },
+  { id: 'fire', name: 'Fire protection (BOMBA)', icon: '🧯' },
   { id: 'cost', name: 'Cost', icon: 'RM' },
 ]

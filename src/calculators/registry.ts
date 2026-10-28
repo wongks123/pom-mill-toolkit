@@ -10,12 +10,14 @@ import { massBalance, oerFromBunch, oerKerFromProduction, oilLoss, pressCakeChec
 import { productionCost } from '../engine/cost'
 import { PIPE_MATERIALS, PUMP_FLUIDS, STRAINERS, pumpAffinity, pumpSystem, type PumpSystemInput } from '../engine/pumpSystem'
 import pipeData from '../data/pipeSizes.json'
+import { BATTERY_DEVICES, FIRE_PIPE_MATERIALS, FIRE_PIPE_SIZES, SPRINKLER_HAZARDS, co2DeepSeated, fireAlarmBattery, fireInternalDiameter, firePumpHead, fireWaterStorage, fittingEquivalentLength, sprinklerPipeLoss, sprinklerRequirement, type FireMaterial, type FittingKey } from '../engine/fire'
 import fittingData from '../data/pumpSystem.json'
 import { CHAIN_PITCH_MM, CONVEYOR_MATERIALS, CONVEYOR_TYPES, SCRAPER_DESIGNS, SCREW_SIZES, SPROCKET_TEETH, conveyorSizing, loadFromMill, sprocketPcd } from '../engine/conveyor'
 import oilLossData from '../data/oilLosses.json'
 import pressCakeData from '../data/pressCakeTargets.json'
 import startingMethods from '../data/startingMethods.json'
 import type { CalcDef, InputDef } from './types'
+import { InputError } from '../engine/types'
 import { ConveyorExtra, PumpSystemExtra, CostExtra, OilLossExtra, PfTableExtra, SterilisationExtra } from './extras'
 
 const CUSTOM = 99
@@ -39,6 +41,42 @@ function pumpInput(v: Record<string, number>): PumpSystemInput {
 const capacity: InputDef = { key: 'capacityTph', label: 'Mill capacity', unit: 't FFB/h', default: 45, typical: [10, 120], project: 'capacityTph' }
 const gallonOpt: InputDef = { key: 'gallon', label: 'Gallon type', default: 0, options: [{ value: 0, label: 'Imperial (constant 3,300)' }, { value: 1, label: 'US (constant 3,960)' }] }
 const gallon = (v: number): GallonType => (v === 1 ? 'us' : 'imperial')
+
+
+// ---------- Fire protection helpers ----------
+const FIRE_MAT = (def: number): InputDef => ({ key: 'mat', label: 'Pipe material', default: def, options: FIRE_PIPE_MATERIALS.map((m, k) => ({ value: k, label: m.name })) })
+const FIRE_DN = (def: number): InputDef => ({ key: 'dn', label: 'Pipe size (nominal)', default: def, options: FIRE_PIPE_SIZES.map((d) => ({ value: d, label: `DN${d}` })) })
+const FIRE_METHOD: InputDef = { key: 'method', label: 'Friction method', default: 0, options: [{ value: 0, label: 'Hazen-Williams' }, { value: 1, label: 'Darcy-Weisbach' }] }
+const FITTING_KEYS: { key: string; label: string; fit: FittingKey }[] = [
+  { key: 'fElbow', label: 'Elbows', fit: 'elbow' },
+  { key: 'fTee', label: 'Tees', fit: 'tee' },
+  { key: 'fGate', label: 'Gate valves', fit: 'gate' },
+  { key: 'fCheck', label: 'Check valves', fit: 'check' },
+  { key: 'fStrainer', label: 'Y-strainers', fit: 'y45' },
+  { key: 'fAngle', label: 'Angle / landing valves', fit: 'angle' },
+]
+const fittingInputs = (defs: Record<string, number>): InputDef[] =>
+  FITTING_KEYS.filter((f) => f.key in defs).map((f) => ({ key: f.key, label: f.label, default: defs[f.key], step: 1, allowZero: true, typical: [0, 50] as [number, number] }))
+function fittingsEq(v: Record<string, number>): { total: number; lines: string[] } {
+  let total = 0
+  const lines: string[] = []
+  for (const f of FITTING_KEYS) {
+    const n = v[f.key] ?? 0
+    if (!n) continue
+    const each = fittingEquivalentLength(v.dn, f.fit)
+    total += n * each
+    lines.push(`${n} ${f.label.toLowerCase()} × ${each} m`)
+  }
+  return { total, lines }
+}
+function firePipe(v: Record<string, number>) {
+  const mat = FIRE_PIPE_MATERIALS[v.mat]
+  return { mat, idMm: fireInternalDiameter(mat.id as FireMaterial, v.dn) }
+}
+const EFF_INPUTS: InputDef[] = [
+  { key: 'effP', label: 'Assumed pump efficiency', unit: '%', default: 65, max: 100, typical: [50, 85] },
+  { key: 'effM', label: 'Assumed motor efficiency', unit: '%', default: 85, max: 100, typical: [75, 96] },
+]
 
 export const CALCULATORS: CalcDef[] = [
   // ---------- Process ----------
@@ -841,6 +879,257 @@ export const CALCULATORS: CalcDef[] = [
       }
     },
     Extra: CostExtra,
+  },
+
+  // ---------- Fire protection (BOMBA) ----------
+  {
+    id: 'fire-tank',
+    category: 'fire',
+    title: 'Fire water storage tank',
+    purpose: 'Water storage for pressurised hydrants, hose reels and sprinklers, and the effective volume of the tank you choose.',
+    source: 'iTake fire fighting template (WT Storage, HR Tank Sizing); Guide to Fire Protection in Malaysia sprinkler table.',
+    formula: ['Hydrant: round(flow × duration / 1000) m³ × hydrants operating', 'Hose reel: 2,275 L + min(1,137.5 × (n − 1), 6,825) L', 'Sprinkler: table by hazard class and height', 'Effective volume = (H − suction pipe − low level − headroom) × W × D'],
+    inputs: [
+      { key: 'hFlow', label: 'Flow per hydrant', unit: 'L/min', default: 1362, typical: [1000, 2000], hint: '1362 L/min = 300 gpm' },
+      { key: 'dur', label: 'Duration', unit: 'min', default: 60, typical: [30, 120] },
+      { key: 'hSim', label: 'Hydrants operating at once', default: 3, step: 1, typical: [1, 4] },
+      { key: 'reels', label: 'Number of hose reels', default: 9, step: 1, allowZero: true, typical: [0, 40] },
+      { key: 'spHaz', label: 'Sprinkler system', default: 0, options: [{ value: -1, label: 'None' }, ...SPRINKLER_HAZARDS.map((h, k) => ({ value: k, label: h }))] },
+      { key: 'spH', label: 'Height lowest → highest sprinkler', unit: 'm', default: 20, allowZero: true, typical: [0, 45], showIf: (v) => v.spHaz >= 0 },
+      { key: 'tH', label: 'Tank height', unit: 'm', default: 0, allowZero: true, typical: [0, 10], hint: '0 = skip tank check' },
+      { key: 'tW', label: 'Tank width', unit: 'm', default: 0, allowZero: true, typical: [0, 30], showIf: (v) => v.tH > 0 },
+      { key: 'tD', label: 'Tank length', unit: 'm', default: 0, allowZero: true, typical: [0, 30], showIf: (v) => v.tH > 0 },
+      { key: 'tSuc', label: 'Suction pipe diameter', unit: 'm', default: 0.1, allowZero: true, typical: [0, 0.3], showIf: (v) => v.tH > 0 },
+      { key: 'tLow', label: 'Low water level above base', unit: 'm', default: 0.1, allowZero: true, typical: [0, 0.5], showIf: (v) => v.tH > 0 },
+      { key: 'tHead', label: 'Headroom for ball float valve', unit: 'm', default: 0.2, allowZero: true, typical: [0, 0.5], showIf: (v) => v.tH > 0 },
+    ],
+    compute: (v) => {
+      const r = fireWaterStorage({ hydrantFlowLpm: v.hFlow, durationMin: v.dur, hydrantsSimultaneous: v.hSim, hoseReels: v.reels, sprinklerHazard: v.spHaz, sprinklerHeightM: v.spH, tankHm: v.tH, tankWm: v.tW, tankDm: v.tD, suctionPipeM: v.tSuc, lowLevelM: v.tLow, headroomM: v.tHead })
+      const x = r.values
+      return {
+        primary: { label: 'Total storage required', value: x.totalM3, unit: 'm³', digits: 1 },
+        outputs: [
+          { label: 'Hydrant storage', value: x.hydrantM3, unit: 'm³', digits: 1 },
+          { label: 'Hose reel storage', value: x.hoseReelM3, unit: 'm³', digits: 2 },
+          { label: 'Sprinkler storage', value: x.sprinklerM3, unit: 'm³', digits: 1 },
+          ...(x.effectiveM3 !== undefined ? [{ label: 'Tank effective volume', value: x.effectiveM3, unit: 'm³', digits: 1 }] : []),
+        ],
+        steps: r.steps,
+        warnings: r.warnings,
+      }
+    },
+  },
+  {
+    id: 'fire-hydrant-pump',
+    category: 'fire',
+    title: 'Pressurised hydrant pump',
+    purpose: 'Duty pump flow, head and motor for the pressurised hydrant system, plus jockey pump head and residual pressure at the furthest hydrant.',
+    source: 'iTake fire fighting template (PH Pump HW/DW), corrected: static head and fitting lengths are added, not multiplied by friction per metre.',
+    corrected: true,
+    formula: ['Q = flow per hydrant × hydrants operating', 'H = residual × 10.197 + static + hf × (pipe length + Σ fitting equivalent length)', 'hf (H-W) = 10.67·Q^1.852 / (C^1.852·d^4.87);  hf (D-W) = f·v²/(2g·d)', 'Design head = H × (1 + SF);  Jockey head = design × 1.05'],
+    inputs: [
+      { key: 'hFlow', label: 'Flow per hydrant', unit: 'L/min', default: 1362, typical: [1000, 2000], hint: '1362 L/min = 300 gpm' },
+      { key: 'hSim', label: 'Hydrants operating at once', default: 3, step: 1, typical: [1, 4] },
+      { key: 'res', label: 'Residual pressure at hydrant', unit: 'bar', default: 4, typical: [4, 7], hint: 'BOMBA: 4–7 bar' },
+      { key: 'stat', label: 'Static height, pump → highest hydrant', unit: 'm', default: 3, allowZero: true, typical: [0, 60] },
+      { key: 'len', label: 'Pipe length to furthest hydrant', unit: 'm', default: 100, allowZero: true, typical: [10, 1000] },
+      FIRE_MAT(2),
+      FIRE_DN(150),
+      FIRE_METHOD,
+      ...fittingInputs({ fGate: 8, fElbow: 6, fTee: 7, fCheck: 1, fStrainer: 1, fAngle: 1 }),
+      { key: 'sf', label: 'Safety factor on head', default: 20, options: [{ value: 0, label: 'None' }, { value: 10, label: '+10%' }, { value: 20, label: '+20%' }] },
+      ...EFF_INPUTS,
+      { key: 'sel', label: 'Selected pump head (optional)', unit: 'm', default: 0, allowZero: true, typical: [0, 150], hint: 'For residual check; 0 = skip' },
+    ],
+    compute: (v) => {
+      const { mat, idMm } = firePipe(v)
+      const fit = fittingsEq(v)
+      const r = firePumpHead({ flowLpm: v.hFlow * v.hSim, residualBar: v.res, staticM: v.stat, pipeLengthM: v.len, fittingsEqM: fit.total, idMm, method: v.method === 1 ? 'darcy' : 'hazen', hazenC: mat.hazenC, roughnessMm: mat.roughnessMm, safetyPct: v.sf, pumpEffPct: v.effP, motorEffPct: v.effM })
+      const x = r.values
+      r.steps.splice(2, 0, { label: 'Fitting equivalent length', formula: fit.lines.join(' + ') || 'none', value: fit.total, unit: 'm' }, { label: `Pipe ID (${mat.name}, DN${v.dn})`, formula: 'pipe table', value: idMm, unit: 'mm' })
+      const jockey = (v.sel > 0 ? v.sel : x.designHeadM) * 1.05
+      r.steps.push({ label: 'Jockey pump head', formula: `${v.sel > 0 ? 'selected' : 'design'} head × 1.05`, value: jockey, unit: 'm' })
+      const outputs = [
+        { label: 'Pump flow', value: v.hFlow * v.hSim, unit: 'L/min', digits: 0 },
+        { label: 'Pump flow', value: (v.hFlow * v.hSim * 60) / 1000, unit: 'm³/h', digits: 1 },
+        { label: 'Velocity', value: x.velocity, unit: 'm/s', digits: 2 },
+        { label: 'Friction loss', value: x.frictionPerM, unit: 'm/m', digits: 4 },
+        { label: 'Total head (before SF)', value: x.headM, unit: 'm', digits: 1 },
+        { label: 'Motor rating', value: x.motorKw, unit: 'kW', digits: 1 },
+        { label: 'Jockey pump head', value: jockey, unit: 'm', digits: 1 },
+      ]
+      const warnings = [...r.warnings]
+      if (v.sel > 0) {
+        const residual = (v.sel - v.stat - x.frictionM) / 10.197
+        r.steps.push({ label: 'Residual at furthest hydrant', formula: `(${v.sel} − ${v.stat} − ${x.frictionM.toFixed(2)}) / 10.197`, value: residual, unit: 'bar' })
+        outputs.push({ label: 'Residual at furthest hydrant', value: residual, unit: 'bar', digits: 2 })
+        if (residual < 4) warnings.push(`Residual pressure ${residual.toFixed(2)} bar is below 4 bar with the selected pump.`)
+        if (residual > 7) warnings.push(`Residual pressure ${residual.toFixed(2)} bar is above 7 bar; a pressure-reducing arrangement may be needed.`)
+      }
+      if (v.res < 4 || v.res > 7) warnings.push('Hydrant residual pressure is normally 4–7 bar.')
+      return { primary: { label: 'Design pump head', value: x.designHeadM, unit: 'm', digits: 1 }, outputs, steps: r.steps, warnings }
+    },
+  },
+  {
+    id: 'fire-hosereel-pump',
+    category: 'fire',
+    title: 'Hose reel pump',
+    purpose: 'Hose reel pump head, pipe velocity and motor rating from the run to the furthest and highest hose reel drum.',
+    source: 'iTake hose reel pump calculation (MS 1489).',
+    formula: ['H = static + hf × (vertical + horizontal pipe + Σ fitting equivalent length) + residual × 10.197 [+ nozzle loss]', 'hf (H-W) = 10.67·Q^1.852 / (C^1.852·d^4.87)', 'Design head = H × (1 + SF);  pipe ID for 2 m/s = √(4Q/(π·2))'],
+    inputs: [
+      { key: 'flow', label: 'Required flow rate', unit: 'L/min', default: 120, typical: [30, 300] },
+      { key: 'res', label: 'Residual pressure at drum', unit: 'bar', default: 2, typical: [2, 4] },
+      { key: 'hi', label: 'Highest hose reel level', unit: 'm', default: 8.5, allowZero: true, typical: [0, 60] },
+      { key: 'lo', label: 'Pump level', unit: 'm', default: 0, allowZero: true, typical: [0, 60] },
+      { key: 'vert', label: 'Vertical pipe length', unit: 'm', default: 17, allowZero: true, typical: [0, 200] },
+      { key: 'horz', label: 'Horizontal pipe length', unit: 'm', default: 198, allowZero: true, typical: [0, 500] },
+      FIRE_MAT(0),
+      FIRE_DN(50),
+      FIRE_METHOD,
+      ...fittingInputs({ fElbow: 6, fTee: 11, fGate: 3, fCheck: 1, fStrainer: 1 }),
+      { key: 'noz', label: 'Nozzle / hose loss', unit: 'm', default: 0, allowZero: true, typical: [0, 40], hint: 'Master sheet used 30.5 m (100 ft) for a 4.8 mm nozzle' },
+      { key: 'sf', label: 'Safety factor on head', default: 10, options: [{ value: 0, label: 'None' }, { value: 10, label: '+10%' }, { value: 20, label: '+20%' }] },
+      ...EFF_INPUTS,
+    ],
+    compute: (v) => {
+      const { mat, idMm } = firePipe(v)
+      const fit = fittingsEq(v)
+      if (v.hi < v.lo) throw new InputError('Highest hose reel level is below the pump level')
+      const r = firePumpHead({ flowLpm: v.flow, residualBar: v.res, staticM: v.hi - v.lo, pipeLengthM: v.vert + v.horz, fittingsEqM: fit.total, idMm, method: v.method === 1 ? 'darcy' : 'hazen', hazenC: mat.hazenC, roughnessMm: mat.roughnessMm, extraLossM: v.noz, safetyPct: v.sf, pumpEffPct: v.effP, motorEffPct: v.effM })
+      const x = r.values
+      const minId = Math.sqrt(((v.flow / 60000) * 4) / (Math.PI * 2)) * 1000
+      r.steps.splice(2, 0, { label: 'Fitting equivalent length', formula: fit.lines.join(' + ') || 'none', value: fit.total, unit: 'm' }, { label: `Pipe ID (${mat.name}, DN${v.dn})`, formula: 'pipe table', value: idMm, unit: 'mm' }, { label: 'Minimum pipe ID for 2 m/s', formula: '√(4Q / (π × 2))', value: minId, unit: 'mm' })
+      return {
+        primary: { label: 'Pump nominal head', value: Math.ceil(x.designHeadM), unit: 'm', digits: 0 },
+        outputs: [
+          { label: 'Pump flow', value: x.flowLps, unit: 'L/s', digits: 2 },
+          { label: 'Pump flow', value: x.flowLps * 3.6, unit: 'm³/h', digits: 1 },
+          { label: 'Velocity', value: x.velocity, unit: 'm/s', digits: 2 },
+          { label: 'Friction loss', value: x.frictionPerM, unit: 'm/m', digits: 4 },
+          { label: 'Friction head', value: x.frictionM, unit: 'm', digits: 2 },
+          { label: 'Design head', value: x.designHeadM, unit: 'm', digits: 2 },
+          { label: 'Motor rating', value: x.motorKw, unit: 'kW', digits: 2 },
+        ],
+        steps: r.steps,
+        warnings: r.warnings,
+      }
+    },
+  },
+  {
+    id: 'fire-sprinkler-req',
+    category: 'fire',
+    title: 'Sprinkler pump & water supply',
+    purpose: 'Sprinkler pump flow, pressure and water storage by hazard class and height of the installation.',
+    source: 'Guide to Fire Protection in Malaysia (sprinkler table in the iTake template, SP Chart).',
+    formula: ['Height class = 15 / 30 / 45 m (next up from the height difference)', 'Flow, pressure and storage read from the table'],
+    inputs: [
+      { key: 'haz', label: 'Hazard class', default: 1, options: SPRINKLER_HAZARDS.map((h, k) => ({ value: k, label: h })) },
+      { key: 'h', label: 'Height lowest → highest sprinkler', unit: 'm', default: 20, allowZero: true, typical: [0, 45] },
+    ],
+    compute: (v) => {
+      const r = sprinklerRequirement(v.haz, v.h)
+      const x = r.values
+      return {
+        primary: { label: 'Pump flow', value: x.flowLpm, unit: 'L/min', digits: 0 },
+        outputs: [
+          { label: 'Pressure', value: x.pressureBar, unit: 'bar', digits: 1 },
+          { label: 'Water storage', value: x.storageM3, unit: 'm³', digits: 0 },
+          { label: 'Height class', value: x.heightClass, unit: 'm', digits: 0 },
+        ],
+        steps: r.steps,
+        warnings: r.warnings,
+      }
+    },
+  },
+  {
+    id: 'fire-sprinkler-loss',
+    category: 'fire',
+    title: 'Sprinkler pipe loss (design point)',
+    purpose: 'Pre-calculated pressure loss from the installation valve to one design point, by pipe size. Repeat for each design point and save each to history.',
+    source: 'iTake pre-hydraulic sprinkler calculation (MS 1910). Loss rates per pipe size from the sheet.',
+    formula: ['Equivalent length = pipe length + turns × 3 m', 'Loss = equivalent length × loss rate (mbar/m)', 'Total = sum over pipe sizes'],
+    inputs: [
+      ...([65, 80, 100, 150] as const).flatMap((dn): InputDef[] => [
+        { key: `l${dn}`, label: `DN${dn} pipe length`, unit: 'm', default: ({ 65: 4, 80: 8, 100: 8, 150: 189 } as Record<number, number>)[dn], allowZero: true, typical: [0, 400] },
+        { key: `t${dn}`, label: `DN${dn} turns`, default: ({ 65: 0, 80: 0, 100: 0, 150: 13 } as Record<number, number>)[dn], step: 1, allowZero: true, typical: [0, 40] },
+        { key: `r${dn}`, label: `DN${dn} loss rate`, unit: 'mbar/m', default: ({ 65: 35, 80: 16, 100: 4.4, 150: 0.65 } as Record<number, number>)[dn], allowZero: true, typical: [0, 100] },
+      ]),
+      { key: 'eq', label: 'Equivalent length per turn', unit: 'm', default: 3, allowZero: true, typical: [1, 5] },
+    ],
+    compute: (v) => {
+      const r = sprinklerPipeLoss([65, 80, 100, 150].map((dn) => ({ dn, lengthM: v[`l${dn}`], turns: v[`t${dn}`], lossMbarPerM: v[`r${dn}`] })), v.eq)
+      return {
+        primary: { label: 'Total pressure loss', value: r.values.totalMbar, unit: 'mbar', digits: 1 },
+        outputs: [{ label: 'Total pressure loss', value: r.values.totalBar, unit: 'bar', digits: 3 }],
+        steps: r.steps,
+        warnings: r.warnings,
+      }
+    },
+  },
+  {
+    id: 'fire-battery',
+    category: 'fire',
+    title: 'Fire alarm battery',
+    purpose: 'Standby battery capacity for a conventional fire alarm panel from its standby and alarm loads.',
+    source: 'iTake battery calculation for conventional fire alarm panel. Device currents from the sheet; check with the panel maker.',
+    formula: ['Capacity = standby load × standby hours + alarm load × alarm hours', 'Required = capacity × (1 + SF)', 'Select the next 12 V battery size (2 in series for 24 V)'],
+    inputs: [
+      ...BATTERY_DEVICES.map((d): InputDef => ({ key: `q_${d.id}`, label: d.name, default: ({ panel: 1, spka: 1, zone: 24, bell: 18, pump: 2, co2: 4, device: 8, detector: 0 } as Record<string, number>)[d.id] ?? 0, step: 1, allowZero: true, typical: [0, 500], hint: `${d.standbyA} / ${d.alarmA} A` })),
+      { key: 'sbH', label: 'Standby duration', unit: 'h', default: 72, typical: [24, 72] },
+      { key: 'alH', label: 'Alarm duration', unit: 'h', default: 1, typical: [0.5, 3] },
+      { key: 'sf', label: 'Safety factor', unit: '%', default: 10, allowZero: true, typical: [10, 25] },
+    ],
+    compute: (v) => {
+      const r = fireAlarmBattery(Object.fromEntries(BATTERY_DEVICES.map((d) => [d.id, v[`q_${d.id}`]])), v.sbH, v.alH, v.sf)
+      const x = r.values
+      return {
+        primary: { label: 'Battery selected', value: x.selectedAh, unit: 'Ah @ 12 V', digits: 0 },
+        outputs: [
+          { label: 'Total standby load', value: x.standbyA, unit: 'A', digits: 3 },
+          { label: 'Total alarm load', value: x.alarmA, unit: 'A', digits: 3 },
+          { label: 'Minimum capacity', value: x.minimumAh, unit: 'Ah', digits: 2 },
+          { label: 'Required with SF', value: x.requiredAh, unit: 'Ah', digits: 2 },
+        ],
+        steps: r.steps,
+        warnings: r.warnings,
+      }
+    },
+  },
+  {
+    id: 'fire-co2',
+    category: 'fire',
+    title: 'CO₂ total flooding (deep-seated)',
+    purpose: 'CO₂ quantity, cylinders, discharge rate and pipe sizes for one protected room (switch room, MCC, etc.).',
+    source: 'iTake automatic CO₂ fire extinguishing system calculation (deep-seated fire).',
+    formula: ['CO₂ = volume × flooding factor (1.6 kg/m³ below 56.6 m³, else 1.33) × (1 + SF)', 'Cylinders = ⌈CO₂ / cylinder size⌉', 'Flow = max(provided / 7 min, 30/50 × provided / 2 min)', 'Pipe size from flow and cylinder-to-nozzle distance'],
+    inputs: [
+      { key: 'L', label: 'Room length', unit: 'm', default: 3.472, typical: [1, 50] },
+      { key: 'W', label: 'Room width', unit: 'm', default: 3.73, typical: [1, 50] },
+      { key: 'H', label: 'Room height', unit: 'm', default: 3.4, typical: [2, 10] },
+      { key: 'ff', label: 'Flooding factor', default: 0, options: [{ value: 0, label: 'Automatic (by volume)' }, { value: 1.6, label: '1.6 kg/m³' }, { value: 1.33, label: '1.33 kg/m³' }] },
+      { key: 'sf', label: 'Safety factor', unit: '%', default: 10, allowZero: true, typical: [0, 30] },
+      { key: 'cyl', label: 'CO₂ per cylinder', default: 45, options: [{ value: 22.5, label: '22.5 kg' }, { value: 45, label: '45 kg' }] },
+      { key: 'noz', label: 'Discharge nozzles', default: 2, step: 1, typical: [1, 16] },
+      { key: 'dist', label: 'Cylinder to nozzle distance', default: 50, options: [{ value: 50, label: 'Within 50 m' }, { value: 75, label: 'Within 75 m' }, { value: 100, label: 'Within 100 m' }] },
+    ],
+    compute: (v) => {
+      const r = co2DeepSeated({ lengthM: v.L, widthM: v.W, heightM: v.H, factorOverride: v.ff, safetyPct: v.sf, cylinderKg: v.cyl, nozzles: v.noz, distanceM: v.dist as 50 | 75 | 100 })
+      const x = r.values
+      return {
+        primary: { label: 'Cylinders', value: x.cylinders, unit: `× ${v.cyl} kg`, digits: 0 },
+        outputs: [
+          { label: 'Room volume', value: x.volumeM3, unit: 'm³', digits: 2 },
+          { label: 'CO₂ required', value: x.requiredKg, unit: 'kg', digits: 1 },
+          { label: 'CO₂ provided', value: x.providedKg, unit: 'kg', digits: 1 },
+          { label: 'Design flow', value: x.flowKgMin, unit: 'kg/min', digits: 1 },
+          { label: 'Per nozzle', value: x.perNozzleKgMin, unit: 'kg/min', digits: 1 },
+          ...x.pipes.map((p) => ({ label: `${p.name} size`, value: p.dnMm, unit: 'mm', digits: 0 })),
+        ],
+        steps: r.steps,
+        warnings: r.warnings,
+      }
+    },
   },
 ]
 

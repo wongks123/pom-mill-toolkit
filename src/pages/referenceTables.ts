@@ -13,9 +13,37 @@ import startingMethods from '../data/startingMethods.json'
 import cost from '../data/productionCost.json'
 import conveyors from '../data/conveyors.json'
 import pumpData from '../data/pumpSystem.json'
+import fire from '../data/fireProtection.json'
 
 export const TABLES: Table[] = [
   { id: 'bulkDensities', ...bulkDensities },
+  {
+    id: 'fireFittings', title: 'Fire: equivalent length of fittings and valves (m)', source: fire.source,
+    columns: ['DN (mm)', 'Elbow', 'Tee', 'Gate', 'Check', 'Globe', '60° Y', '45° Y / strainer', 'Angle'],
+    rows: fire.equivalentLengthM.map((r) => [r.dn, r.elbow, r.tee, r.gate, r.check, r.globe, r.y60, r.y45, r.angle]),
+  },
+  {
+    id: 'firePipes', title: 'Fire: pipe internal diameters (GI BS 1387, MSCL JKR)', source: fire.source,
+    columns: ['DN (mm)', 'GI size (in)', 'GI Class B ID (mm)', 'GI Class C ID (mm)', 'MSCL ID (mm)'],
+    rows: [...new Set([...fire.giPipes.map((g) => g.dn), ...fire.msclPipes.map((m) => m.dn)])].sort((a, b) => a - b).map((dn) => {
+      const g = fire.giPipes.find((x) => x.dn === dn)
+      const m = fire.msclPipes.find((x) => x.dn === dn)
+      return [dn, g?.inch ?? '—', g?.classBidMm ?? '—', g?.classCidMm ?? '—', m?.idMm ?? '—']
+    }),
+  },
+  {
+    id: 'fireSprinkler', title: 'Fire: sprinkler flow, pressure and storage by hazard class', source: fire.sprinkler.note,
+    columns: ['Hazard class', 'Height class (m)', 'Flow (L/min)', 'Pressure (bar)', 'Storage (m³)'],
+    rows: fire.sprinkler.hazards.flatMap((h) => ['15', '30', '45'].map((c) => {
+      const t = (x: Record<string, Record<string, number>>) => x[h]?.[c] ?? '—'
+      return [h, c, t(fire.sprinkler.flowLpm), t(fire.sprinkler.pressureBar), t(fire.sprinkler.storageM3)]
+    })),
+  },
+  {
+    id: 'fireCo2Pipes', title: 'Fire: CO₂ pipe size by flow and distance', source: fire.source,
+    columns: ['Flow (kg/min)', 'Within 50 m', 'Within 75 m', 'Within 100 m'],
+    rows: fire.co2.pipeSizes.slice(1).map((r) => [`${r.fromKgMin}–${r.toKgMin}`, r.a50, r.b75, r.c100]),
+  },
   {
     id: 'pumpFluids', title: 'Mill fluids for pump sizing', source: pumpData.source, review: pumpData.review,
     columns: ['Fluid', 'Density (kg/m³)', 'Viscosity (mPa·s)', 'Vapour pressure (kPa abs)'],
