@@ -45,6 +45,7 @@ export function Layout() {
 
       <footer className="no-print mx-auto max-w-5xl px-4 pb-6 text-center text-xs text-stone-500">
         Based on the MPOB Palm Oil Mill Pocketbook, with known errata corrected. <Link to="/about" className="underline">About & errata</Link>
+        <div className="mt-1 text-[10px] text-stone-400">Version {__APP_BUILD__}</div>
       </footer>
 
       <nav className="no-print fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-stone-200 bg-white md:hidden">

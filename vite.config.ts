@@ -4,7 +4,11 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+const env = (globalThis as { process?: { env: Record<string, string | undefined> } }).process?.env ?? {}
+const BUILD = `${new Date().toISOString().slice(0, 10)} · ${(env.GITHUB_SHA ?? 'local').slice(0, 7)}`
+
 export default defineConfig({
+  define: { __APP_BUILD__: JSON.stringify(BUILD) },
   base: './',
   plugins: [
     react(),
