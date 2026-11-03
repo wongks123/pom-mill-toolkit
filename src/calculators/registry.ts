@@ -18,6 +18,7 @@ import pressCakeData from '../data/pressCakeTargets.json'
 import startingMethods from '../data/startingMethods.json'
 import type { CalcDef, InputDef } from './types'
 import { InputError } from '../engine/types'
+import { FireBatteryExtra, FireCo2Extra, FireHoseReelExtra, FireHydrantExtra, FireSprinklerLossExtra, FireSprinklerReqExtra, FireTankExtra } from './fireExtras'
 import { ConveyorExtra, PumpSystemExtra, CostExtra, OilLossExtra, PfTableExtra, SterilisationExtra } from './extras'
 
 const CUSTOM = 99
@@ -916,8 +917,10 @@ export const CALCULATORS: CalcDef[] = [
         ],
         steps: r.steps,
         warnings: r.warnings,
+        data: { ...x, tank: v.tH > 0 ? { h: v.tH, w: v.tW, d: v.tD, suc: v.tSuc, low: v.tLow, head: v.tHead } : undefined },
       }
     },
+    Extra: FireTankExtra,
   },
   {
     id: 'fire-hydrant-pump',
@@ -967,8 +970,9 @@ export const CALCULATORS: CalcDef[] = [
         if (residual > 7) warnings.push(`Residual pressure ${residual.toFixed(2)} bar is above 7 bar; a pressure-reducing arrangement may be needed.`)
       }
       if (v.res < 4 || v.res > 7) warnings.push('Hydrant residual pressure is normally 4–7 bar.')
-      return { primary: { label: 'Design pump head', value: x.designHeadM, unit: 'm', digits: 1 }, outputs, steps: r.steps, warnings }
+      return { primary: { label: 'Design pump head', value: x.designHeadM, unit: 'm', digits: 1 }, outputs, steps: r.steps, warnings, data: { x, staticM: v.stat, hydrants: v.hSim, dn: v.dn, flowLpm: v.hFlow * v.hSim, sfPct: v.sf } }
     },
+    Extra: FireHydrantExtra,
   },
   {
     id: 'fire-hosereel-pump',
@@ -1013,8 +1017,10 @@ export const CALCULATORS: CalcDef[] = [
         ],
         steps: r.steps,
         warnings: r.warnings,
+        data: { x, staticM: v.hi - v.lo, nozzleM: v.noz, dn: v.dn, flowLpm: v.flow },
       }
     },
+    Extra: FireHoseReelExtra,
   },
   {
     id: 'fire-sprinkler-req',
@@ -1039,8 +1045,10 @@ export const CALCULATORS: CalcDef[] = [
         ],
         steps: r.steps,
         warnings: r.warnings,
+        data: { ...x, hazard: SPRINKLER_HAZARDS[v.haz], heightM: v.h },
       }
     },
+    Extra: FireSprinklerReqExtra,
   },
   {
     id: 'fire-sprinkler-loss',
@@ -1064,8 +1072,10 @@ export const CALCULATORS: CalcDef[] = [
         outputs: [{ label: 'Total pressure loss', value: r.values.totalBar, unit: 'bar', digits: 3 }],
         steps: r.steps,
         warnings: r.warnings,
+        data: { totalMbar: r.values.totalMbar, segments: [150, 100, 80, 65].map((dn) => ({ dn, eqM: v[`l${dn}`] + v[`t${dn}`] * v.eq, lossMbar: (v[`l${dn}`] + v[`t${dn}`] * v.eq) * v[`r${dn}`] })) },
       }
     },
+    Extra: FireSprinklerLossExtra,
   },
   {
     id: 'fire-battery',
@@ -1093,8 +1103,10 @@ export const CALCULATORS: CalcDef[] = [
         ],
         steps: r.steps,
         warnings: r.warnings,
+        data: { ...x, standbyH: v.sbH, alarmH: v.alH, safetyPct: v.sf },
       }
     },
+    Extra: FireBatteryExtra,
   },
   {
     id: 'fire-co2',
@@ -1128,8 +1140,10 @@ export const CALCULATORS: CalcDef[] = [
         ],
         steps: r.steps,
         warnings: r.warnings,
+        data: { x, cylinderKg: v.cyl, nozzles: v.noz, dims: [v.L, v.W, v.H] },
       }
     },
+    Extra: FireCo2Extra,
   },
 ]
 
